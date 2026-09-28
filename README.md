@@ -1,9 +1,9 @@
 # compas_singular
 
 Welcome to **compas_singular**, a Python library tackles topology finding of patterns, particularly singularities in structured quad meshes.
-Based on the PhD research of Robin Oval ([*Topology Finding of Patterns for Structural Design*](https://pastel.hal.science/tel-02917467), Université Paris-Est, 2019), this library implements data structures for quad mesh modelling, several algorithms for topological exploration and interface with Rhino3D/Grasshopper3D.
+Based on the PhD research of Robin Oval ([*Topology Finding of Patterns for Structural Design*](https://pastel.hal.science/tel-02917467), Université Paris-Est, 2019), this library implements data structures for quad mesh modelling, several algorithms for topological exploration and interface with Rhino3D.
 
-**compas_singular** is based on the **COMPAS** framework is an open-source, Python-based framework for computational research and collaboration in architecture, engineering, digital fabrication and construction.
+**compas_singular** is based on the **COMPAS** framework, which is an open-source, Python-based framework for computational research and collaboration in architecture, engineering, digital fabrication and construction.
 
 ## Getting Started
 
@@ -29,11 +29,6 @@ pip install -e .
 # runtime + the 3D viewer used by the examples
 pip install -e .[viewer]
 ```
-
-The `-e` (editable) install puts a `.pth` file pointing at `src/` on your
-`sys.path`, so `from compas_singular.datastructures import CoarseQuadMesh`
-works from any directory and any script, and your edits to `src/` take effect
-immediately without reinstalling.
 
 Prefer conda? `environment.yml` describes a development environment: COMPAS,
 the viewer, and an editable install with the `dev`, `fd` and `viewer` extras:
