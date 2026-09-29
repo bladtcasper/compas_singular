@@ -109,10 +109,18 @@ def bake_geometry(report, keys, seam=None):
     c = geo["centre"]
     guid = rs.AddPoint([c[0], c[1], 0.0])
     rs.ObjectLayer(guid, path)
-    for line in geo["mirrors"]:
+    for element, line in zip(report.group.mirror_elements(), geo["mirrors"]):
         guid = rs.AddLine(list(line.start), list(line.end))
         rs.ObjectLayer(guid, path)
+        guid = rs.AddTextDot(element.key, list(line.end))
+        rs.ObjectLayer(guid, path)
     bake_polylines([points_of(p) for p in geo["rotations"]], path, clear_existing=False)
+    rotations = [e.key for e in report.group.rotations() if e.kind != "identity"]
+    if rotations and len(geo["rotations"]) > 1:
+        tick = points_of(geo["rotations"][1])
+        guid = rs.AddTextDot(" ".join(rotations), tick[-1])
+        rs.ObjectLayer(guid, path)
+
     outline = report.unit_outline(keys=keys, seam=seam)
     bake_polylines([points_of(p) for p in outline["loops"]], layer("UnitOutline"))
 

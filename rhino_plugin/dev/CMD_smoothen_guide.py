@@ -35,7 +35,7 @@ Moving it takes the outline of the building with it, since attaching a vertex ov
 the boundary constraint it would otherwise have had.
 
 The whole algorithm lives in ``compas_singular.editing.guide_chain`` and is measured,
-without Rhino, in ``examples/guide_chain_tests``. This file is the picks, the prompts and
+without Rhino, in ``examples/dev_examples_tests/guide_chain_tests``. This file is the picks, the prompts and
 the bake.
 """
 
