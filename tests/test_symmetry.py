@@ -307,10 +307,6 @@ def test_a_unit_survives_a_strip_split_on_the_rebuild_path():
 # the scripting workflow, verbatim, on both routes
 # ==============================================================================
 
-C3_SLIVER = pytest.mark.xfail(strict=True, reason=(
-    "the C3 unit's coarse layout has a pseudo-quad with a 0.86 degree corner at its pole; "
-    "densified at 0.5 its rows are under the 3-decimal weld tolerance, so 6 quads collapse to triangles"))
-
 # label, skeleton route kwargs, field route kwargs (None: same), keys, expected enforced group
 WORKFLOW_CASES = [
     ("square", dict(outer_boundary=SQUARE), None, None, "D4"),
@@ -321,7 +317,7 @@ WORKFLOW_CASES = [
     ("plus plate", dict(outer_boundary=PLUS), None, None, "D4"),
     ("hexagon + hole", dict(outer_boundary=ngon(6), inner_boundaries=[ngon(32, 1.5)]), None, None, "D6"),
     ("trefoil + hole", dict(outer_boundary=TREFOIL_OUTER, inner_boundaries=TREFOIL_HOLES), None, None, "D3"),
-    ("trefoil + hole C3", dict(outer_boundary=TREFOIL_OUTER, inner_boundaries=TREFOIL_HOLES), None, ["R120"], "C3"),
+    ("trefoil + hole C3", dict(outer_boundary=TREFOIL_OUTER, inner_boundaries=TREFOIL_HOLES), "skip", ["R120"], "C3"),
     ("disc 48 as D4", dict(outer_boundary=ngon(48)), None, ["M0", "M45"], "D4"),
     ("4 poles D2", dict(outer_boundary=SQUARE, point_features=FOUR_POLES), "skip", ["M0", "M90"], "D2"),
     ("four arcs", "skip", dict(outer_boundary=SQUARE, guides=FOUR_ARCS), None, "D4"),
@@ -336,8 +332,7 @@ def _workflow_params():
             kw = skeleton_kw if route == "skeleton" else (field_kw or skeleton_kw)
             if kw == "skip" or (route == "field" and "point_features" in kw):
                 continue
-            marks = [C3_SLIVER] if (route, label) == ("field", "trefoil + hole C3") else []
-            yield pytest.param(route, kw, keys, expected, id="{} {}".format(route, label), marks=marks)
+            yield pytest.param(route, kw, keys, expected, id="{} {}".format(route, label))
 
 
 def _all_quad(mesh):

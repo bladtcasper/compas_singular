@@ -15,6 +15,12 @@ Each file runs in its own process: they install fake `Rhino` and
 `rhinoscriptsyntax` modules, and compas decides whether it is inside Rhino by
 looking for exactly those.
 
+**Use `run_all.py`, not `python test_x.py`, while Rhino is open.** `rhino_plugin/`
+is the library base of `Topology.rhproj`, so Rhino watches this folder, and a
+`.pyc` written into `__pycache__` here is an atomic write -- the file event that
+has crashed Rhino before. `run_all.py` turns bytecode writing off; a bare run of
+one file does not unless you set `PYTHONDONTWRITEBYTECODE=1`.
+
 Run under **both** interpreters. `singular312` is the development env; Rhino 8's
 own CPython is the one the commands run on, so a name that resolves there resolves
 in Rhino. Its `PYTHONPATH` must include a site-env -- the names change, so list
@@ -33,7 +39,7 @@ PYTHONPATH="C:/Users/Casper/.rhinocode/py39-rh8/site-envs/<env>;C:/Users/Casper/
 | `test_dense_edit_rhino_side.py` | `helpers.mesh_from_rhino` n-gons, and every name `CMD09_edit_quad_mesh` imports. |
 | `test_mcp_link_rhino_side.py` | `CMD_mcp_link` -- above all the four gates that keep Rhino usable. |
 
-`_harness.py` and `_cases.py` are shared helpers. The scene objects
+`_harness.py` and `_cases.py` are shared helpers. Being inside the library base, this folder is also part of what the Rhino project sees. The scene objects
 (`compas_singular.rhino.scene`) are checked in
 `examples/dev_examples_tests/scene_tests/test_scene_objects.py`, which needs
 `compas_rui` and so only runs under Rhino's interpreter.

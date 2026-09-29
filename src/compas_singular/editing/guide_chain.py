@@ -44,7 +44,7 @@ __all__ = [
 #: both how much of the guide is covered and how hard the mesh is pulled about.
 #:
 #: There are TWO gates and they catch different failures, which is why both are kept.
-#: Swept over 14 guides on three meshes (``examples/guide_chain_tests``) -- worst face
+#: Swept over 14 guides on three meshes (``examples/dev_examples_tests/guide_chain_tests``) -- worst face
 #: angle after attaching, and mean coverage:
 #:
 #: ========= =================== =================== =========================
