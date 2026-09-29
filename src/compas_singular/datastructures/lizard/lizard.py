@@ -112,19 +112,17 @@ class Lizard:
 if __name__ == '__main__':
 
 	import random as rd
-	import compas
-	from compas_singular.datastructures import QuadMesh
-	from compas_singular.datastructures import CoarseQuadMesh
-	from compas.datastructures.mesh.smoothing import mesh_smooth_centroid
-	from compas_plotters.meshplotter import MeshPlotter
-	from compas_singular.datastructures.mesh_quad.grammar.add_strip import add_strip
 	from math import pi
-	from compas.geometry import add_vectors
-	from compas_singular.geometry import circle_evaluate
-	from compas_singular.datastructures.mesh.operations import mesh_move_vertex_to
-	from compas.rpc import Proxy
 
+	from compas_plotters.meshplotter import MeshPlotter
+
+	from compas.geometry import add_vectors
 	from compas.numerical import fd_numpy
+	from compas_singular.datastructures import CoarseQuadMesh
+	from compas_singular.datastructures import QuadMesh
+	from compas_singular.datastructures.mesh.operations import mesh_move_vertex_to
+	from compas_singular.datastructures.mesh_quad.grammar.add_strip import add_strip
+	from compas_singular.geometry import circle_evaluate
 	
 	def fix_boundaries(mesh: "QuadMesh") -> None:
 		n = len(mesh.vertices_on_boundaries())

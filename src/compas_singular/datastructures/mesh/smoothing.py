@@ -696,9 +696,10 @@ def region_smoothing(mesh: Mesh, vertices: Sequence[int] | dict[int, float], kma
 @lru_cache(maxsize=None)
 def _fd_polyline_constraint_class() -> type:
     """A ``compas_fd`` constraint that holds a vertex on a polyline, built on first use."""
+    from compas_fd.constraints import Constraint as FDConstraint
+
     from compas.geometry import Vector
     from compas.geometry import vector_component
-    from compas_fd.constraints import Constraint as FDConstraint
 
     class PolylineConstraint(FDConstraint):
         """Constraint for limiting the movement of a vertex to a polyline."""

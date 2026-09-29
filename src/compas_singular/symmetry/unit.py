@@ -3,9 +3,9 @@
 ``SymmetricUnit.check`` requires seam junctions at corners and matching rotation seams.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 import json
 from copy import deepcopy
@@ -16,7 +16,6 @@ from typing import Callable
 from typing import Sequence
 
 from compas.geometry import vector_average
-
 from compas_singular.datastructures import CoarsePseudoQuadMesh
 from compas_singular.datastructures import PseudoQuadMesh
 from compas_singular.datastructures.mesh_quad_coarse.mesh_quad_coarse import CoarseQuadMesh
@@ -29,7 +28,6 @@ from compas_singular.symmetry.replicate import expand
 from compas_singular.symmetry.replicate import rotation_partners
 from compas_singular.symmetry.replicate import seam_membership
 from compas_singular.symmetry.report import SymmetryReport
-
 
 __all__ = ['SymmetricUnit', 'SymmetricQuadUnit', 'build_unit']
 

@@ -3,9 +3,9 @@
 Plain Python, no shapely. Design notes: ``design_notes/symmetry.md``.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from math import atan2
 from math import cos
@@ -13,9 +13,9 @@ from math import degrees
 from math import hypot
 from math import pi
 from math import sin
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 from compas_singular.symmetry._geometry import area_centroid
 from compas_singular.symmetry._geometry import open_loop

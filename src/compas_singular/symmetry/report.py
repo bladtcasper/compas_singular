@@ -1,8 +1,8 @@
 """What ``.detect.find_symmetry`` found, and the geometry to show it with."""
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from math import cos
 from math import pi
@@ -14,12 +14,8 @@ from typing import Sequence
 from compas_singular.symmetry._geometry import point_in_polygon
 
 if TYPE_CHECKING:
-    from compas.geometry import Line
-    from compas.geometry import Point
     from compas.geometry import Polyline
-
     from compas_singular.symmetry.domain import Domain
-    from compas_singular.symmetry.group import Element
     from compas_singular.symmetry.group import SymmetryGroup
 
 

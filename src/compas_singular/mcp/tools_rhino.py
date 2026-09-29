@@ -3,12 +3,12 @@
 Pull once, improve, push at the end: a round trip loses precision to ``Point3f``.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 from compas_singular.mcp.bridge import spool
 from compas_singular.mcp.bridge import wire
@@ -305,8 +305,8 @@ def unseen_coarse_refusal(session: MeshSession) -> dict[str, Any] | None:
     },
     destructive=True, open_world=True, title='Push the coarse layout to Rhino')
 def _t_rhino_push_coarse(session: MeshSession, timeout: float = 30.0) -> dict[str, Any]:
-    from compas_singular.mcp import tools_coarse
     import compas
+    from compas_singular.mcp import tools_coarse
 
     if session.coarse is None:
         return {'ok': False, 'reason': 'no coarse layout is loaded, so there is '

@@ -15,8 +15,8 @@ from compas.tolerance import TOL
 from compas_singular.geometry.polyline import project_on_polyline
 
 if TYPE_CHECKING:
-    from compas_singular.datastructures import CoarseQuadMesh
     from compas_singular.datastructures import CoarsePseudoQuadMesh
+    from compas_singular.datastructures import CoarseQuadMesh
 
 
 __all__ = [

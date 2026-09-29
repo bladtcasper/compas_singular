@@ -6,7 +6,6 @@ from __future__ import print_function
 from typing import TYPE_CHECKING
 from typing import Any
 
-from compas.datastructures.mesh.mesh import Mesh
 from compas.geometry import discrete_coons_patch
 from compas.itertools import pairwise
 from compas.tolerance import TOL

@@ -3,14 +3,14 @@
 Topology edits snapshot the whole mesh; the coarse layout has its own undo stack.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 import time
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Iterable
-from typing import TYPE_CHECKING
 
 from compas_singular.framefield.quality import mesh_quality
 

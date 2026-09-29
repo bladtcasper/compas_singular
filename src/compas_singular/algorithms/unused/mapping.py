@@ -250,13 +250,9 @@ if __name__ == '__main__':
 
     import time
 
-    from compas_singular.datastructures.mesh_quad_coarse.mesh_quad_coarse import CoarseQuadMesh
-    from compas_singular.datastructures.mesh_quad_pseudo_coarse.mesh_quad_pseudo_coarse import CoarsePseudoQuadMesh
-    from compas_singular.datastructures.mesh_quad_pseudo.mesh_quad_pseudo import PseudoQuadMesh
-    from compas_singular.algorithms.interpolation.layout import *
-    from compas_singular.datastructures import meshes_join
-    from compas_plotters.meshplotter import MeshPlotter
     from compas_singular.algorithms.interpolation.isomorphism import are_meshes_isomorphic
+    from compas_singular.algorithms.interpolation.layout import *
+    from compas_singular.datastructures.mesh_quad_pseudo.mesh_quad_pseudo import PseudoQuadMesh
 
     # mesh_1 = CoarseQuadMesh.from_json('/Users/Robin/Desktop/json/f.json')
     # mesh_2 = CoarseQuadMesh.from_json('/Users/Robin/Desktop/json/g.json')

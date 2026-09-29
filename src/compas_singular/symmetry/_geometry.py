@@ -1,9 +1,9 @@
 """Plain-Python planar geometry the symmetry package needs. No numpy, no shapely:
 everything here must run in Rhino 8's interpreter as well."""
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from math import acos
 from math import ceil

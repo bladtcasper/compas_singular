@@ -3,13 +3,13 @@
 A line whose strip reaches a non-quad face is refused; undo keeps a whole-mesh copy.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 from compas_singular.editing.denseeditor import DenseMeshEditor
 from compas_singular.mcp.bridge import wire

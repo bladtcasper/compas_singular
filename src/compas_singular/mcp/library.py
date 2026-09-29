@@ -3,9 +3,9 @@
 Nothing here fails loudly; missing files give defaults.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 import json
 import os
@@ -13,7 +13,6 @@ from typing import Any
 from typing import Sequence
 
 from compas_singular.mcp.describe import DEFAULT_THRESHOLDS
-
 
 __all__ = [
     'LIBRARY_ENVVAR',

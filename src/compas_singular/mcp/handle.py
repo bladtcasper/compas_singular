@@ -3,9 +3,9 @@
 Regions are selected by description via ``select``, never enumerated.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from typing import Any

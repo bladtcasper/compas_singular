@@ -488,7 +488,6 @@ class TwoColourableProjection(object):
 if __name__ == '__main__':
     pass
 
-    import compas
     from compas_plotters.meshplotter import MeshPlotter
 
     # vertices = [
