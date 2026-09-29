@@ -111,3 +111,10 @@ temp/**
 .DS_Store
 
 .vscode
+
+# development examples/tests kept locally, not published
+examples/dev_examples_tests/
+
+# local notes, not published
+markdowns/
+design_notes/

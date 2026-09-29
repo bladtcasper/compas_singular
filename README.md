@@ -1,9 +1,9 @@
 # compas_singular
 
 Welcome to **compas_singular**, a Python library tackles topology finding of patterns, particularly singularities in structured quad meshes.
-Based on the PhD research of Robin Oval ([*Topology Finding of Patterns for Structural Design*](https://pastel.hal.science/tel-02917467), Université Paris-Est, 2019), this library implements data structures for quad mesh modelling, several algorithms for topological exploration and interface with Rhino3D/Grasshopper3D.
+Based on the PhD research of Robin Oval ([*Topology Finding of Patterns for Structural Design*](https://pastel.hal.science/tel-02917467), Université Paris-Est, 2019), this library implements data structures for quad mesh modelling, several algorithms for topological exploration and interface with Rhino3D.
 
-**compas_singular** is based on the **COMPAS** framework is an open-source, Python-based framework for computational research and collaboration in architecture, engineering, digital fabrication and construction.
+**compas_singular** is based on the **COMPAS** framework, which is an open-source, Python-based framework for computational research and collaboration in architecture, engineering, digital fabrication and construction.
 
 ## Getting Started
 
@@ -29,11 +29,6 @@ pip install -e .
 # runtime + the 3D viewer used by the examples
 pip install -e .[viewer]
 ```
-
-The `-e` (editable) install puts a `.pth` file pointing at `src/` on your
-`sys.path`, so `from compas_singular.datastructures import CoarseQuadMesh`
-works from any directory and any script, and your edits to `src/` take effect
-immediately without reinstalling.
 
 Prefer conda? `environment.yml` describes a development environment: COMPAS,
 the viewer, and an editable install with the `dev`, `fd` and `viewer` extras:
@@ -86,7 +81,7 @@ mesh = decomposition.quad_mesh(target_length=0.5)
 print(mesh.number_of_faces(), 'quads on route', decomposition.route())
 ```
 
-[`examples/GitHub/`](https://github.com/bladtcasper/compas_singular/tree/dev/examples/GitHub) has thirteen worked examples, from this workflow to layout
+[`examples/`](https://github.com/bladtcasper/compas_singular/tree/dev/examples) has thirteen worked examples, from this workflow to layout
 editing, patterns, guides, symmetry and dual blocks.
 
 ### Rhino 8
@@ -100,9 +95,7 @@ published, install it with Rhino's interpreter (Rhino closed):
 %USERPROFILE%\.rhinocode\py39-rh8\python.exe -m pip install "compas_singular[rhino,fd] @ git+https://github.com/bladtcasper/compas_singular.git@dev"
 ```
 
-[`markdowns/RHINO_PLUGIN.md`](https://github.com/bladtcasper/compas_singular/blob/dev/markdowns/RHINO_PLUGIN.md) describes the workflow and the layers it creates.
-
-The [Rhino page](https://bladtcasper.github.io/compas_singular/tutorial/rhino/) of the documentation lists the commands.
+The [Rhino page](https://bladtcasper.github.io/compas_singular/tutorial/rhino/) of the documentation describes the workflow and lists the commands.
 
 ## First Steps
 
@@ -123,9 +116,8 @@ See [CONTRIBUTING.md](https://github.com/bladtcasper/compas_singular/blob/dev/CO
 
 ## Changelog
 
-See [CHANGELOG.md](https://github.com/bladtcasper/compas_singular/blob/dev/CHANGELOG.md). What this fork changed relative to the
-upstream [BRG-research/compas_singular](https://github.com/BRG-research/compas_singular)
-is in [markdowns/CHANGES_VS_UPSTREAM.md](https://github.com/bladtcasper/compas_singular/blob/dev/markdowns/CHANGES_VS_UPSTREAM.md).
+See [CHANGELOG.md](https://github.com/bladtcasper/compas_singular/blob/dev/CHANGELOG.md), which also lists what this fork changed relative to the
+upstream [BRG-research/compas_singular](https://github.com/BRG-research/compas_singular).
 
 ## License
 
