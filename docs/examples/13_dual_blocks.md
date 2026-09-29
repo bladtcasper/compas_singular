@@ -5,5 +5,5 @@ For masonry or other block structures, the quad mesh is read the other way round
 ![From quad mesh to blocks: the dual mesh](../assets/images/examples/13_dual_blocks.png)
 
 ```python
---8<-- "examples/GitHub/13_dual_blocks.py"
+--8<-- "examples/13_dual_blocks.py"
 ```

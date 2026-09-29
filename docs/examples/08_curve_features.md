@@ -5,5 +5,5 @@ A curve feature is a line the quad mesh must follow: a crease, a rib, a joint. T
 ![Curve features](../assets/images/examples/08_curve_features.png)
 
 ```python
---8<-- "examples/GitHub/08_curve_features.py"
+--8<-- "examples/08_curve_features.py"
 ```

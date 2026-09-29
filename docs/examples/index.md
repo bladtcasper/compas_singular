@@ -1,7 +1,7 @@
 # Examples
 
 Short, linear scripts, one feature each.
-They are in `examples/GitHub/` in the repository and open their result in `compas_viewer`,
+They are in `examples/` in the repository and open their result in `compas_viewer`,
 so install the package with the `viewer` extra to run them.
 
 ## Workflows

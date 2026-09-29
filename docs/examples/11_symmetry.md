@@ -5,5 +5,5 @@ A symmetric domain does not always give a symmetric mesh: the decomposition can 
 ![Symmetry](../assets/images/examples/11_symmetry.png)
 
 ```python
---8<-- "examples/GitHub/11_symmetry.py"
+--8<-- "examples/11_symmetry.py"
 ```

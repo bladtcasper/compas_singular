@@ -12,8 +12,8 @@ for path in (os.path.join(REPO, "src"), os.path.join(REPO, "examples", "New appr
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from compas_singular.framefield.decomposition import FieldDecomposition  # noqa: E402
-from compas_singular.datastructures.mesh_quad.grammar_pattern import (   # noqa: E402
+from compas_singular.framefield.field_decomposition import FieldDecomposition  # noqa: E402
+from compas_singular.datastructures.mesh_quad.grammar.delete_strip import (   # noqa: E402
     collateral_strip_deletions, delete_strip, total_boundary_deletions)
 
 

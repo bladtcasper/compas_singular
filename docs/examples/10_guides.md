@@ -5,5 +5,5 @@ A guide is a curve the quads should run along: a cable, a force line, a directio
 ![Guides on the frame-field route](../assets/images/examples/10_guides.png)
 
 ```python
---8<-- "examples/GitHub/10_guides.py"
+--8<-- "examples/10_guides.py"
 ```

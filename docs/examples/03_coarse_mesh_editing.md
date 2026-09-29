@@ -5,5 +5,5 @@ The coarse mesh decides the topology of the final quad mesh: where its poles are
 ![Editing the coarse quad mesh](../assets/images/examples/03_coarse_mesh_editing.png)
 
 ```python
---8<-- "examples/GitHub/03_coarse_mesh_editing.py"
+--8<-- "examples/03_coarse_mesh_editing.py"
 ```

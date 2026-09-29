@@ -5,5 +5,5 @@ The density of a strip is the number of quads across it. A strip runs through se
 ![Densities](../assets/images/examples/04_densities.png)
 
 ```python
---8<-- "examples/GitHub/04_densities.py"
+--8<-- "examples/04_densities.py"
 ```
