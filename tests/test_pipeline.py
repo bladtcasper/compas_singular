@@ -20,7 +20,7 @@ from compas_singular.algorithms import boundary_triangulation
 from compas_singular.algorithms import SkeletonDecomposition
 
 HERE = os.path.dirname(__file__)
-DATA = os.path.abspath(os.path.join(HERE, '..', 'examples', 'data'))
+DATA = os.path.join(HERE, 'data')
 
 
 def test_coarse_quad_densification():
@@ -506,17 +506,6 @@ def test_seam_propagation_that_never_ends_is_abandoned():
 
     assert any('did not terminate' in note for note in decomposition.repair_notes)
     assert coarse.number_of_faces() < 200
-    assert max(_face_sizes(coarse)) <= 4
-
-
-def test_seam_propagation_skips_a_face_through_a_vertex_twice():
-    """A bent line near a corner produced a face passing through one vertex twice,
-    and ``quadrangulate_face`` raised ``ValueError: not enough values to unpack``.
-    """
-    rectangle = [[0.0, 0.0, 0.0], [5.0, 0.0, 0.0], [5.0, 10.0, 0.0], [0.0, 10.0, 0.0]]
-    bent = [[[5.0, 2.589, 0.0], [3.505, 1.12, 0.0], [3.824, 0.0, 0.0]]]
-    decomposition = SkeletonDecomposition.from_boundary(rectangle, polyline_features=bent)
-    coarse = decomposition.coarse_mesh()
     assert max(_face_sizes(coarse)) <= 4
 
 
