@@ -24,7 +24,7 @@ __all__ = []
 
 #: The background spacing's share of the bounding-box diagonal when none is
 #: given -- ``SkeletonDecomposition.from_boundary``'s own ``alpha``.
-ALPHA = 0.04
+ALPHA = 0.02
 
 
 def _points(curve: Any) -> list[list[float]]:

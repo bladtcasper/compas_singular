@@ -179,7 +179,7 @@ def test_background_spacing_defaults_to_the_thesis_value():
     settings = Settings().model_dump()
     assert settings['triangulation_spacing'] is None
     assert resolve_spacing(settings, loops=[PLATE]) == pytest.approx(
-        0.04 * bounding_box_diagonal(PLATE))
+        0.02 * bounding_box_diagonal(PLATE))
     settings['triangulation_spacing'] = 0.3
     assert resolve_spacing(settings, loops=[PLATE]) == 0.3
 

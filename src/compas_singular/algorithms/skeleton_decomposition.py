@@ -121,7 +121,7 @@ class SkeletonDecomposition(Skeleton):
     @classmethod
     def from_boundary(cls, outer_boundary: list[list[float]], inner_boundaries: list[list[list[float]]] | None = None,
                       polyline_features: list[list[list[float]]] = [], point_features: list[list[float]] = [],
-                      target_length: float | None = None, alpha: float | None = 0.04, d_min: int | None = 5) -> SkeletonDecomposition:
+                      target_length: float | None = None, alpha: float | None = 0.02, d_min: int | None = 5) -> SkeletonDecomposition:
         """Triangulate a domain given by its walls, ready to decompose.
 
         Parameters

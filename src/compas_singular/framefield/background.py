@@ -166,7 +166,7 @@ class BackgroundMesh(object):
         target_length: float | None = None,
         margin: float = 0.45,
         symmetry: Symmetry | None = None,
-        alpha: float = 0.04,
+        alpha: float = 0.02,
         d_min: int = 5,
     ) -> BackgroundMesh:
         """Triangulate the region inside ``outer_boundary`` and outside the holes.

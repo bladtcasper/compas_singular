@@ -15,7 +15,7 @@ __all__ = ['Settings']
 class Settings(BaseModel):
 
     #: Background triangulation spacing. NOT the quad size -- the field is
-    #: solved on this. ``None`` takes thesis eq. 4.1, 0.04 times the domain's
+    #: solved on this. ``None`` takes thesis eq. 4.1, 0.02 times the domain's
     #: bounding-box diagonal, in both routes; a number overrides it. Finer means
     #: a better field and a slower solve; 0.3 on a 20 x 14 m plate is 2 438
     #: vertices and 2.1 s. Rhino-side lengths: ``project.resolve_spacing``.

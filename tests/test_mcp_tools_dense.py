@@ -7,6 +7,9 @@ from compas_singular.mcp.handle import vertex_handle
 
 L_SHAPE = [[0, 0, 0], [10, 0, 0], [10, 4, 0], [4, 4, 0], [4, 10, 0], [0, 10, 0]]
 SQUARE = [[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]]
+# ``_densified_l``'s pole and line checks were written on the layout the old
+# default (alpha = 0.04) gives, so its spacing is pinned to it.
+L_SPACING = 0.04 * math.hypot(10, 10)
 
 
 def _circle(cx, cy, r, n=48):
@@ -22,7 +25,7 @@ def _interior_edge(mesh):
 
 def _densified_l(mcp, points=(), density=3):
     mcp.session.adopt(None, walls=[L_SHAPE], guides=[], points=[list(p) for p in points])
-    mcp("create_coarse_mesh")
+    mcp("create_coarse_mesh", target_length=L_SPACING)
     mcp("coarse_set_density", density={"kind": "all", "value": density})
     mcp("coarse_densify")
     return mcp.session.mesh
@@ -110,7 +113,7 @@ def test_check_inputs_passes_a_clean_domain(mcp):
 
 
 def test_check_inputs_names_every_quiet_failure(mcp):
-    t = 0.04 * math.hypot(10, 10)
+    t = 0.02 * math.hypot(10, 10)
     mcp.session.adopt(None, walls=[SQUARE, _circle(1 + 0.25 * t, 3, 1), _circle(7, 7, 0.2)],
                       guides=[[[5, 8, 0], [12, 8, 0]]],
                       points=[[1.5 * t, 8, 0], [5, 3.0 * t, 0], [12, 5, 0], [7, 7, 0]])

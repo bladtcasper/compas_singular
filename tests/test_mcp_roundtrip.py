@@ -18,6 +18,9 @@ from compas_singular.mcp.handle import vertex_handle
 from compas_singular.mcp.tools_rhino import _float32_collapsed
 
 L_WALL = [[0, 0, 0], [10, 0, 0], [10, 4, 0], [4, 4, 0], [4, 10, 0], [0, 10, 0]]
+# The scripted cut below was drawn on the layout the old default (alpha = 0.04)
+# gives, so the spacing is pinned to it.
+L_SPACING = 0.04 * math.hypot(10, 10)
 #: What the fake document holds: its domain and its current selection.
 DOMAIN = {"outer": L_WALL, "points": [[2, 2, 0]]}
 SELECTION = {"outer": [[0, 0, 0], [6, 0, 0], [6, 6, 0], [0, 6, 0]], "points": [[3, 3, 0]]}
@@ -106,7 +109,7 @@ def link(mcp_spool):
 def _pushed_coarse(mcp, link):
     """Build a layout with a drawn arc and a pattern, look at it, and push it."""
     mcp.session.adopt(None, walls=[L_WALL], guides=[], points=[[2, 2, 0]])
-    mcp("create_coarse_mesh")
+    mcp("create_coarse_mesh", target_length=L_SPACING)
     mcp("coarse_set_density", density={"kind": "all", "value": 3})
     cut = mcp("coarse_divide", points=ARC)
     assert cut.get("ok") is True, cut.get("reason")

@@ -14,6 +14,9 @@ from compas_singular.mcp.handle import vertex_handle
 
 L_SHAPE = [[0, 0, 0], [10, 0, 0], [10, 4, 0], [4, 4, 0], [4, 10, 0], [0, 10, 0]]
 SQUARE = [[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]]
+# ``l_layout``'s scripted cuts were drawn on the layout the old default
+# (alpha = 0.04) gives, so its spacing is pinned to it.
+L_SPACING = 0.04 * math.hypot(10, 10)
 HOLE = [[5 + 2 * math.cos(2 * math.pi * i / 48), 5 + 2 * math.sin(2 * math.pi * i / 48), 0]
         for i in range(48)]
 POLE = [2, 2, 0]
@@ -63,7 +66,7 @@ def _arc():
 @pytest.fixture
 def l_layout(mcp):
     mcp.session.adopt(None, walls=[L_SHAPE], guides=[], points=[])   # a boundary-only pull
-    out = mcp("create_coarse_mesh")
+    out = mcp("create_coarse_mesh", target_length=L_SPACING)
     assert out.get("ok") is True, out.get("reason")
     return mcp
 
