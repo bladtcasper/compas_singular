@@ -137,7 +137,7 @@ if __name__ == '__main__':
 		q = [1.0] * len(edges)
 		#total_area = mesh.area()
 		loads = [[0.0, 0.0, total_load / mesh.number_of_vertices()]] * mesh.number_of_vertices() 
-		xyz, q, f, l, r = fd_numpy(vertices, edges, fixed, q, loads)
+		xyz, q, f, lengths, r = fd_numpy(vertices, edges, fixed, q, loads)
 		for vkey, coordinates in zip(mesh.vertices(), xyz):
 			mesh_move_vertex_to(mesh, coordinates, vkey)
 
@@ -194,6 +194,6 @@ if __name__ == '__main__':
 			#plotter.save('../../../../data/3/' + name)
 			plotter.show()
 			# print('done')
-		except:
+		except Exception:
 			pass
 

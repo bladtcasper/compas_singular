@@ -223,7 +223,7 @@ def _add_strip(
         faces = sort_faces(mesh, u1, v, w)
         v1, v2 = mesh.add_vertex(attr_dict=mesh.vertex[v]), mesh.add_vertex(attr_dict=mesh.vertex[v])
 
-        if type(faces[0]) == list:
+        if isinstance(faces[0], list):
             faces_1, faces_2 = faces
         else:
             # exception necessary for U-turns

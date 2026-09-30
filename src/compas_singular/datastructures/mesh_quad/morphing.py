@@ -63,7 +63,8 @@ def fold_vertex_group(quad_mesh: QuadMesh, polyedges: list[list[int]]) -> dict[i
     return vkey_to_group
 
 
-def fold(quad_mesh: QuadMesh, vkey_to_group: dict[int, int], func0: Callable[[QuadMesh, int], list[float]], func1: Callable[[QuadMesh, int], list[float]]) -> dict[int, list[float]]:
+def fold(quad_mesh: QuadMesh, vkey_to_group: dict[int, int], func0: Callable[[QuadMesh, int], list[float]],
+         func1: Callable[[QuadMesh, int], list[float]]) -> dict[int, list[float]]:
 
     moves = {}
     for vkey, group in vkey_to_group.items():

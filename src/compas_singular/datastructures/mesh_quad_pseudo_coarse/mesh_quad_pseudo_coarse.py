@@ -123,7 +123,8 @@ class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
     # --------------------------------------------------------------------------
 
     def quad_mesh(self, boundary_curvature: bool = True, skeleton_curvature: bool = True,
-                 overwrite_edges_to_curves: dict[tuple[int, int], list[list[float]]] | None = None, field: Any = None, pattern_overwrite: "str | dict[int, str] | None" = None) -> "QuadMesh":
+                  overwrite_edges_to_curves: dict[tuple[int, int], list[list[float]]] | None = None, field: Any = None,
+                  pattern_overwrite: "str | dict[int, str] | None" = None) -> "QuadMesh":
         """Generate a dense quad mesh from this layout in a chosen pattern.
 
         ``'diagonal'`` and ``'fan'`` first raise densities to equal and even values per patch.
@@ -285,7 +286,8 @@ class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
         dense.attributes['face_pole'] = face_pole
         return dense
 
-    def _patch_sides(self, fkey: int, edge_strip: dict[tuple[int, int], int], edges_to_curves: dict[tuple[int, int], list[list[float]]] | None = None) -> list[list[list[float]] | None]:
+    def _patch_sides(self, fkey: int, edge_strip: dict[tuple[int, int], int],
+                     edges_to_curves: dict[tuple[int, int], list[list[float]]] | None = None) -> list[list[list[float]] | None]:
         """The four side polylines ``[ab, bc, dc, ad]`` of one coarse face; a pole's missing side is ``None``.
 
         Parameters
@@ -411,7 +413,8 @@ class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
         for mesh in meshes:
             for fkey in mesh.faces():
                 for u, v in pairwise(mesh.face_vertices(fkey) + mesh.face_vertices(fkey)[: 1]):
-                    if TOL.geometric_key(mesh.vertex_coordinates(u)) in pole_map and TOL.geometric_key(mesh.vertex_coordinates(u)) == TOL.geometric_key(mesh.vertex_coordinates(v)):
+                    gkey_u = TOL.geometric_key(mesh.vertex_coordinates(u))
+                    if gkey_u in pole_map and gkey_u == TOL.geometric_key(mesh.vertex_coordinates(v)):
                         face_pole_map[TOL.geometric_key(mesh.face_center(fkey))] = TOL.geometric_key(mesh.vertex_coordinates(u))
                         break
 

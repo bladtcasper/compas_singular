@@ -54,6 +54,13 @@ def clear_layer(layer: str, clean_sublayers: bool = False) -> int:
 	return count
 
 
+def move_to_trash(obj_ids: Any) -> None:
+	"""Move objects to the hidden ``TrashBin`` layer instead of deleting them."""
+	if not rs.IsLayer("TrashBin"):
+		rs.AddLayer(name="TrashBin", parent=ROOT, color=(90, 90, 90), visible=False)
+	rs.ObjectLayer(obj_ids, "TrashBin")
+
+
 def clean_polyline_points(points: Sequence[Sequence[float]], tol: float | None = None) -> list[list[float]]:
 	"""``points`` with consecutive duplicates dropped at Rhino's document tolerance. ``[]`` if nothing is left."""
 	if tol is None:
@@ -216,7 +223,7 @@ def read_boundary_loops(max_edge: float) -> tuple[list[list[float]], list[list[l
 
 	outer = curve_points(outer_ids[0], max_edge)
 	inners = [curve_points(guid, max_edge)
-			  for guid in rs.ObjectsByLayer("Inner") or []]
+			for guid in rs.ObjectsByLayer("Inner") or []]
 	return outer, inners
 
 
@@ -257,7 +264,7 @@ def read_boundaries(spacing: float | None = None) -> tuple[Polyline, list[Polyli
 		if is_polygon_in_polygon_xy(Polygon(outer), Polygon(inner_compas)):
 			inners.append(inner_compas)
 		else:
-			rs.DeleteObjects(obj_id)
+			move_to_trash(obj_id)
 			print("This inner boundary did not lie inside the outer boundary. It has been removed from the selection.")
 
 	for boundary in inners + [outer]:
@@ -271,7 +278,7 @@ def read_boundaries(spacing: float | None = None) -> tuple[Polyline, list[Polyli
 		if is_polygon_in_polygon_xy(Polygon(outer), Polygon(guide_compas)):
 			guides.append(guide_compas)
 		else:
-			rs.DeleteObjects(guide_id)
+			move_to_trash(guide_id)
 			print("This guide did not lie inside the outer boundary. It has been removed from the selection.")
 
 	poles = []
@@ -282,10 +289,10 @@ def read_boundaries(spacing: float | None = None) -> tuple[Polyline, list[Polyli
 			if all(not is_point_in_polygon_xy(point_compas, Polygon(inner)) for inner in inners):
 				poles.append(point_compas)
 			else:
-				rs.DeleteObjects(pole_id)
+				move_to_trash(pole_id)
 				print("This pole lies inside an inner boundary. It has been removed from the selection.")
 		else:
-			rs.DeleteObjects(pole_id)
+			move_to_trash(pole_id)
 			print("This pole did not lie inside the outer boundary. It has been removed from the selection.")
 
 	return outer, inners, guides, poles

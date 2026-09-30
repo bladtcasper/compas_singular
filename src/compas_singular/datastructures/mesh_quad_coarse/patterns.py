@@ -433,27 +433,27 @@ def pattern_morph_triangle(lam: list[tuple[float, float, float]], faces: list[li
     opposite = [t1, t2, t0]   # E_i, running V(i+1) -> V(i+2)
 
     vertices = []
-    for l in lam:
+    for bary in lam:
         # on a corner or a side, return the input point untouched rather than
         # the blend, which would divide by zero on a corner and could come back
         # a unit in the last place away from the side polyline on a side --
         # and side points are what the neighbouring patch welds to
-        zero = [i for i in range(3) if l[i] == 0.0]
+        zero = [i for i in range(3) if bary[i] == 0.0]
         if len(zero) == 2:
             vertices.append(list(corners[3 - sum(zero)]))
             continue
         if zero:
             i = zero[0]
             j, h = (i + 1) % 3, (i + 2) % 3
-            vertices.append(_polyline_point_at(opposite[i], l[h] / (l[j] + l[h])))
+            vertices.append(_polyline_point_at(opposite[i], bary[h] / (bary[j] + bary[h])))
             continue
 
         spokes, weights = [], []
         for i in range(3):
             j, h = (i + 1) % 3, (i + 2) % 3
-            e = _polyline_point_at(opposite[i], l[h] / (l[j] + l[h]))
-            spokes.append([l[i] * v + (1.0 - l[i]) * x for v, x in zip(corners[i], e)])
-            weights.append(l[j] * l[h])
+            e = _polyline_point_at(opposite[i], bary[h] / (bary[j] + bary[h]))
+            spokes.append([bary[i] * v + (1.0 - bary[i]) * x for v, x in zip(corners[i], e)])
+            weights.append(bary[j] * bary[h])
         total = sum(weights)
         vertices.append([sum(weights[i] * spokes[i][c] for i in range(3)) / total for c in range(3)])
 

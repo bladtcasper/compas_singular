@@ -11,8 +11,11 @@ __copyright__ = 'Copyright 2019 - Block Research Group, ETH Zurich'
 __license__ = 'MIT License'
 __email__ = 'rpho2@cam.ac.uk'
 
-#: The one place the version is set; pyproject.toml reads it from here.
-__version__ = '0.1.0'
+#: Set from the git tags by setuptools-scm, which writes ``_version.py`` on install.
+try:
+    from compas_singular._version import __version__
+except ImportError:  # a source tree that was never installed
+    __version__ = '0.0.0+unknown'
 
 
 HERE = os.path.dirname(__file__)

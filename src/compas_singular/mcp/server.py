@@ -9,6 +9,7 @@ from __future__ import print_function
 
 from typing import Any
 
+from compas_singular import __version__
 from compas_singular.mcp import library
 from compas_singular.mcp import registry
 from compas_singular.mcp import tools_checks  # noqa: F401  -- registers its tools
@@ -165,5 +166,5 @@ def build(session: MeshSession | None = None) -> Dispatcher:
         raise RuntimeError(
             'no tools are registered -- the tools_* imports in server.py are '
             'what register them, so one has been dropped')
-    return Dispatcher(handler, name='compas_singular.mcp', version='0.1.0',
+    return Dispatcher(handler, name='compas_singular.mcp', version=__version__,
                       instructions=INSTRUCTIONS)
