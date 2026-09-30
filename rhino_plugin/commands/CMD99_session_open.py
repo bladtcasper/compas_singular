@@ -3,16 +3,9 @@
 # r: compas
 # r: pydantic
 
-"""**Open a project JSON into this document**: its settings, layout, field and
-dense mesh become this document's, and the layout and the mesh are drawn.
+"""Utility -- open a project JSON into this document.
 
-The file is what ``CMD_session_save`` wrote, or a script's
-``SingularSession.dump``. One Ctrl+Z takes the whole open back.
-
-**The domain is drawn only into EMPTY input layers.** Curves already on Outer,
-Inner, Guides or PointFeatures are the user's, and a second copy of a wall would
-be read as a second wall. So in a document that has its own inputs they are kept,
-and the commands go on reading those.
+Input: a JSON file written by CMD_session_save. Output: its settings, layout, field and mesh in the session, drawn.
 """
 import rhinoscriptsyntax as rs
 from Rhino.Geometry import Point3d

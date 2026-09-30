@@ -2,20 +2,10 @@
 # r: compas
 # r: pydantic
 
-"""Show and edit this document's settings.
+"""Step 1 -- show and edit this document's settings.
 
-    reads   document user text "settings"      over the defaults
-    writes  document user text "settings"      on every change
-
-The settings travel with the ``.3dm``. Their defaults and meaning are in
-``compas_singular.rhino.project.DEFAULT_SETTINGS``; this command is only the menu.
-Several other commands still change single settings in passing
-(``CMD_boundary_selection``: spacing, guide alignment, relax; ``CMD_densities``:
-the density target; ``CMD_quad_mesh``: field_aware) -- all through the same store,
-so what is shown here is always what they will use.
+Input: the settings stored in the document. Output: the changed settings, stored on every change.
 """
-
-
 import Rhino
 import rhinoscriptsyntax as rs
 
@@ -56,9 +46,7 @@ def option_values(settings):
 def pick_option(settings):
     """The option clicked, lower-cased; ``"done"`` on Enter or Esc.
 
-    ``rs.GetString`` only takes bare option names, so the ``Name=Value`` line is
-    built with RhinoCommon. An option Rhino refuses comes back as index 0 and
-    would vanish from the line, so a refused value falls back to the bare name.
+    Note: an option Rhino refuses with its value is added as the bare name.
     """
     go = Rhino.Input.Custom.GetOption()
     go.SetCommandPrompt("Edit settings")
@@ -86,7 +74,7 @@ def main():
         changed = True
 
         if option == "background_spacing":
-            # 0 goes back to None: thesis eq. 4.1, from the domain's size.
+            # 0 = the thesis value (eq. 4.1, from the domain's size).
             value = rs.GetReal("Background triangulation spacing (NOT the quad size), 0 = thesis value",
                                settings["triangulation_spacing"] or 0.0, 0.0)
             if value is not None:
@@ -115,13 +103,13 @@ def main():
             if answer:
                 settings["field_aware"] = answer == "on"
         elif option == "field_symmetry":
-            # JSON null is off -- see resolve_field_symmetry.
+            # None = off.
             current = "Off" if settings.get("field_symmetry") is None else "Auto"
             answer = choose("Detect and use symmetry in the frame field?", current, ["Auto", "Off"])
             if answer:
                 settings["field_symmetry"] = "auto" if answer == "auto" else None
         elif option == "relax":
-            # Stored as "auto", True or False -- the values CMD_boundary_selection writes.
+            # Stored as "auto", True or False.
             current = settings.get("relax", "auto")
             default = "Auto" if str(current).lower() == "auto" else ("On" if current else "Off")
             answer = choose("Relax the field solve? Auto = on when guides exist",

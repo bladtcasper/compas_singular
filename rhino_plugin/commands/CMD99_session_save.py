@@ -3,13 +3,9 @@
 # r: compas
 # r: pydantic
 
-"""**Save the whole project to one JSON file**: settings, domain, layout, field
-and dense mesh.
+"""Utility -- save the whole project to one JSON file.
 
-The file is a ``SingularSession``, so a plain Python script -- no Rhino -- opens
-it with ``SingularSession.load(path)``, edits it, and ``dump``s it again;
-``CMD_session_open`` brings it back. The document keeps its own copy whatever
-happens here: this is an export, not the save of the ``.3dm``.
+Input: the session. Output: a JSON file with settings, domain, layout, field and dense mesh.
 """
 import os
 

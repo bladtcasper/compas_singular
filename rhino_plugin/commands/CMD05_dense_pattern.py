@@ -4,19 +4,9 @@
 # r: pydantic
 # r: compas_rui
 
-"""**Set the dense mesh pattern of each coarse patch.**
+"""Step 5 -- set the dense mesh pattern of each coarse patch.
 
-    reads   the session's layout
-    writes  the session's layout, with its patterns
-    scratch TopologyProblem::Attributes::Patterns   the patches, coloured and labelled
-
-Choose a pattern, then pick patches one at a time (``Pick``), several at once
-(``Pick_multiple``: click them or drag a window, Enter when done) or all of them
-(``All``). Each patch shows its pattern while you pick. ``Finish`` keeps the
-patterns; they are used by ``CMD_quad_mesh``.
-
-The patches are drawn by the layout's scene object (``RhinoCoarseObject``), on a
-scratch layer that is cleared when the command ends.
+Input: the session's layout. Output: the layout with its patch patterns, in the session.
 """
 import rhinoscriptsyntax as rs
 
@@ -43,7 +33,6 @@ def set_patterns(layout, pattern, faces):
 
 def main():
     session = RhinoSession.current()
-    # A copy: it goes back into the session only at the end, when it is recorded.
     coarse = read_layout()
     layout = session.scene.add(coarse, layer=PATTERN_LAYER, show_patterns=True)
 

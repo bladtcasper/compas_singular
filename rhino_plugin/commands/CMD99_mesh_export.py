@@ -3,26 +3,14 @@
 # r: compas
 # r: pydantic
 
-"""**Export one picked mesh to a JSON file** a script can load again.
+"""Utility -- export one picked mesh to a JSON file.
 
-Any mesh object in the document will do. The file is written by
-``Mesh.save_to_json``, so a plain Python script -- no Rhino -- reads it back
-with::
-
-    from compas_singular.datastructures import Mesh
-    mesh = Mesh.load_from_json(path)
-
-and gets the class the file names: a ``CoarsePseudoQuadMesh`` comes back as one.
-
-**The session's own meshes keep what they know.** An object the session drew --
-the layout or the dense mesh -- is exported as the session holds it, found with
-``session.item_of``: the layout's strips, densities and edge curves survive only
-that way. Any other mesh is read from its Rhino geometry.
+Input: any mesh object in the document. Output: a JSON file ``Mesh.load_from_json`` reads back, session attributes included.
 """
 import os
 
-import rhinoscriptsyntax as rs
 import compas_rhino as cr
+import rhinoscriptsyntax as rs
 
 from compas_singular.datastructures import Mesh
 from compas_singular.rhino.helpers import mesh_from_rhino

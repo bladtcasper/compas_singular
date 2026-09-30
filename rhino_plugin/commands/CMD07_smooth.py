@@ -2,65 +2,25 @@
 # r: compas
 # r: pydantic
 # r: compas_fd
-"""Smooth a dense quad mesh -- the whole of it, or a region -- from one option line.
+"""Step 7 -- smooth a dense quad mesh, whole or a region, optionally held to guide curves.
 
-One command for what ``CMD_smoothen`` (whole / region) and ``CMD_smoothen_guide`` (guide
-curves) do separately. Both are left as they are. Pick the mesh, answer Whole or Region,
-set the options and press Enter to smooth::
-
-    Whole   Algorithm  Boundary  FixedVertices  Guides  Iterations  Damping
-    Region  Region  Blend  Boundary  FixedVertices  Guides  Iterations  Damping
-
-* **Algorithm** -- Area, Centroid, CenterOfMass or ForceDensity. A region is always
-  smoothed by area: ``region_smoothing`` has no other rule, because centroid equalises
-  edge lengths and fights the grading a mesh is meant to have.
-* **Boundary** -- Sliding runs every boundary vertex along its own outline with the
-  corners pinned; Fixed pins the whole boundary; Free holds none of it, corners included,
-  so only FixedVertices and guides anchor the mesh. Free is what ForceDensity form finding
-  wants: fix the supports and let the outline find its own shape.
-* **FixedVertices** -- vertices that do not move at all: pick them, or take the vertex at
-  every point on the PointFeatures layer. A fixed vertex wins over everything else,
-  including a guide chain running through it.
-* **Guides** -- pick a guide curve and the chain along it is proposed: the longest run of
-  ONE polyedge that follows it (see ``compas_singular.editing.guide_chain`` for why it is
-  chosen rather than built). Edit it with Add / Remove / Clear and set how it holds.
-  AllGuides proposes a chain for every curve on the Guides layer at once. Picking a guide
-  that already has a chain edits that chain. A guide may be any curve: the chain is chosen
-  on its samples, and a curved guide's vertices land ON the curve, not on a chord of them.
-
-Nothing is attached until Enter. Every chain is chosen on the mesh as it was picked, and
-all of them are moved onto their guides together, so the result does not depend on the
-order the guides were picked in.
-
-**ForceDensity cannot hold a vertex on a curve.** ``relaxation`` takes a fixed set and
-nothing else, so under it Boundary=Sliding holds only the corners -- the rest of the
-outline is held by stiff edges alone and can drift off the wall -- and a guide vertex is
-moved onto its guide and pinned there, whatever its hold says. The command prints what it
-could not honour.
-
-The smoothing itself is in ``compas_singular.datastructures.mesh.smoothing`` and the chain
-selection in ``compas_singular.editing.guide_chain``. This file is the picks, the option
-lines, the preview and the bake -- plus :func:`smooth_whole` / :func:`smooth_region`, which
-put the options together and take no Rhino input, so they can be run without Rhino.
+Input: a mesh picked from TopologyProblem::QuadMesh or a sublayer. Output: the smoothed mesh on QuadMesh::Smoothed::<algorithm or Relaxed>.
 """
 
-from compas_singular.rhino.project import LAYER_DATA
-
+import compas_rhino as cr
 import Rhino
-import System
 import rhinoscriptsyntax as rs
 import scriptcontext as sc
-import compas_rhino as cr
-from compas.geometry import Point
+import System
 from compas_rhino.conversions import curve_to_compas
-from compas_singular.rhino.helpers import mesh_from_rhino
 
+from compas.geometry import Point
 from compas_singular.datastructures import QuadMesh
 from compas_singular.datastructures.mesh.smoothing import automated_boundary_constraints
 from compas_singular.datastructures.mesh.smoothing import constrained_smoothing
 from compas_singular.datastructures.mesh.smoothing import mesh_boundary_corners
-from compas_singular.datastructures.mesh.smoothing import relaxation
 from compas_singular.datastructures.mesh.smoothing import region_smoothing
+from compas_singular.datastructures.mesh.smoothing import relaxation
 from compas_singular.editing import GuideCurve
 from compas_singular.editing import attach_chain
 from compas_singular.editing import chain_quality
@@ -69,13 +29,16 @@ from compas_singular.editing import guide_chain
 from compas_singular.editing import mean_edge_length
 from compas_singular.editing.guide_chain import DEFAULT_MAX_ANGLE
 from compas_singular.editing.guide_chain import DEFAULT_TOLERANCE_FACTOR
-from compas_singular.rhino.helpers import bake_mesh, clear_layer, curve_points
+from compas_singular.rhino.helpers import bake_mesh
+from compas_singular.rhino.helpers import clear_layer
+from compas_singular.rhino.helpers import curve_points
+from compas_singular.rhino.helpers import mesh_from_rhino
+from compas_singular.rhino.project import LAYER_DATA
 
 ALGORITHMS = ["Area", "Centroid", "CenterOfMass", "ForceDensity"]
 BOUNDARY_MODES = ["Sliding", "Fixed", "Free"]
 
-#: Where a smoothed region is baked, next to the per-algorithm layers of a whole-mesh
-#: smooth. The same name CMD_smoothen bakes a region to.
+#: Layer a smoothed region is baked to, under QuadMesh::Smoothed.
 REGION_OUTPUT_LAYER = "Relaxed"
 
 PREVIEW_LAYER = "SmoothPreview"
@@ -84,36 +47,25 @@ BLEND_COLOUR = (255, 160, 0)
 GUIDE_COLOUR = (200, 0, 255)
 FIXED_COLOUR = (0, 110, 255)
 
-#: The full paths, from the one place the layer map is written down. rhinoscriptsyntax
-#: resolves a bare name with FindName, which returns the FIRST layer of that name anywhere
-#: in the document.
+#: Full layer paths of the guides and point features.
 GUIDE_LAYER = LAYER_DATA.get("Guides", ("Guides", None))[0]
 POINT_LAYER = LAYER_DATA.get("PointFeatures", ("PointFeatures", None))[0]
 
-#: Rings of vertices outside a region over which the damping falls to zero. A region
-#: smoothed at full strength up to a hard edge leaves a CREASE there -- a fixed ring next
-#: to a fully relaxed one is a kink, the sort of defect smoothing is meant to remove.
+#: Rings of vertices outside a region over which the damping falls to zero.
 DEFAULT_BLEND = 3
 
-#: How much heavier a boundary edge is than an interior one under ForceDensity. The value
-#: CMD_smoothen runs it with.
+#: Force density of a boundary edge relative to an interior one, under ForceDensity.
 DEFAULT_Q_FACTOR = 10.0
 
-#: A point feature further than this from every vertex, in mean edge lengths, is not a
-#: vertex of this mesh, and fixing whatever vertex happens to be nearest would be wrong.
+#: Largest distance, in mean edge lengths, from a point feature to the vertex it fixes.
 POINT_FEATURE_REACH = 0.5
 
 #: What option_line returns when the user presses Enter.
 ENTER = "<enter>"
 
 
-# ==============================================================================
-# Putting the options together -- no Rhino input from here to the UI section
-# ==============================================================================
-
 def boundary_vertices(mesh):
-    # NOT vertices_on_boundary(): in COMPAS 2 that returns the LONGEST boundary only, so on
-    # a mesh with a hole the hole is left out -- and left free to blow up.
+    """Every vertex on every boundary, holes included."""
     return set(vertex for loop in mesh.vertices_on_boundaries() for vertex in loop)
 
 
@@ -128,12 +80,7 @@ def grow(mesh, core, rings=1):
 
 
 def taper(mesh, core, blend):
-    """Per-vertex damping weight: 1 in the core, falling to 0 outside the blend.
-
-    The same taper ``region_smoothing`` builds for itself. It is built here instead, so the
-    region that is previewed is exactly the region that moves, and so fixed vertices can be
-    given a weight of 0 inside it.
-    """
+    """Per-vertex damping weight: 1 in the core, falling to 0 outside the blend."""
     weights = dict((vertex, 1.0) for vertex in core)
     frontier = set(core)
     for ring in range(1, blend + 1):
@@ -157,21 +104,14 @@ def propose_chain(mesh, guide, tolerance, max_angle, polyedges):
 def attach_guides(mesh, guides, fixed=(), allowed=None):
     """Move every guide's chain onto its guide, and return what holds each vertex there.
 
-    Every move is worked out on the mesh as it is BEFORE any of them is applied: a guide
-    attached second must not choose where to go on a mesh the first one has already pulled
-    about, or the result would depend on the order the guides were picked in. A vertex
-    claimed by two guides is held by the one listed last.
-
-    A BOUNDARY vertex is never moved onto a guide; ``attach_chain`` holds it on its own
-    outline, so at most it slides. Moving it would take the outline with it.
+    Note: all moves are computed before any is applied; a boundary vertex only slides on its outline.
 
     Parameters
     ----------
     guides : list[dict]
         ``{'guide': GuideCurve, 'chain': [vertex, ...], 'hold': 'fixed' | 'sliding'}``.
     fixed : iterable[int]
-        Vertices left out of every chain. A fixed vertex does not move, not even onto a
-        guide.
+        Vertices left out of every chain.
     allowed : set[int], optional
         If given, every vertex not in it is left out as well.
     """
@@ -203,9 +143,7 @@ def attach_guides(mesh, guides, fixed=(), allowed=None):
     return {
         "constraints": constraints,
         "moved": set(moves),
-        # interior vertices held ON the guide rather than pinned where they landed
         "sliding": set(vertex for vertex in moves if not isinstance(constraints[vertex], Point)),
-        # boundary vertices of a chain: not moved, held on their own outline
         "anchored": set(constraints) - set(moves),
         "guides": attached_guides,
         "overlap": len(overlap),
@@ -231,13 +169,7 @@ def _report(attached, pinned, notes, **extra):
 
 
 def boundary_holds(mesh, boundary):
-    """``(constraints, pinned)`` for a Boundary setting, read before anything moves.
-
-    ``sliding`` -- every boundary vertex slides along its own outline, corners pinned.
-    ``fixed``   -- every boundary vertex pinned.
-    ``free``    -- nothing: the boundary, corners included, is smoothed like the interior,
-                   and only fixed vertices and guides hold the mesh.
-    """
+    """``(constraints, pinned)`` for a Boundary setting: sliding, fixed or free."""
     if boundary == "sliding":
         return automated_boundary_constraints(mesh), set()
     if boundary == "fixed":
@@ -248,11 +180,7 @@ def boundary_holds(mesh, boundary):
 
 
 def _release_anchors(constraints, attached, boundary):
-    """On a Free boundary a chain's boundary ends are not held on the outline either.
-
-    attach_chain constrains them to their wall as it was; with the rest of that wall free to
-    move, holding just the ends to it would pin the outline at two points.
-    """
+    """On a Free boundary, drop the outline constraints of the chains' boundary ends."""
     if boundary == "free":
         for vertex in attached["anchored"]:
             constraints.pop(vertex, None)
@@ -277,9 +205,6 @@ def smooth_whole(mesh, algorithm="area", boundary="sliding", fixed=(), guides=()
         if boundary == "fixed":
             pinned = set(walls)
         elif boundary == "free":
-            # the form is found from the fixed vertices and the guides alone; the boundary
-            # edges are still BoundaryStiffness times stiffer, which is what keeps the
-            # outline from collapsing onto the supports
             pinned = set()
         else:
             pinned = set(mesh_boundary_corners(mesh))
@@ -289,7 +214,6 @@ def smooth_whole(mesh, algorithm="area", boundary="sliding", fixed=(), guides=()
                 "the wall. Use Boundary=Fixed, or another algorithm, to keep it on the "
                 "wall.".format(len(pinned)))
         attached = attach_guides(mesh, guides, fixed)
-        # an interior vertex on a guide is pinned where it landed -- the only hold there is
         pinned |= attached["moved"]
         if attached["sliding"]:
             notes.append(
@@ -304,7 +228,6 @@ def smooth_whole(mesh, algorithm="area", boundary="sliding", fixed=(), guides=()
         relaxation(mesh, fixed=sorted(pinned), q_factor=q_factor)
         return _report(attached, pinned, notes)
 
-    # the constraints read the outline before any guide moves anything
     constraints, pinned = boundary_holds(mesh, boundary)
 
     attached = attach_guides(mesh, guides, fixed)
@@ -314,22 +237,14 @@ def smooth_whole(mesh, algorithm="area", boundary="sliding", fixed=(), guides=()
         notes.append(
             "the boundary is free and nothing is fixed or on a guide, so nothing holds the "
             "mesh: it shrinks a little with every iteration.")
-    # An attached BOUNDARY vertex is held on its own outline by attach_chain -- the same
-    # constraint a sliding boundary gives it. On a Fixed boundary that is what lets a
-    # cable's anchored end follow the chain along the wall, and it still cannot leave it.
     pinned -= set(attached["constraints"])
-    # and a fixed vertex is fixed, whatever else was going to hold it
     pinned |= fixed
     for vertex in fixed:
         constraints.pop(vertex, None)
 
     if algorithm == "centerofmass":
-        # compas' centre-of-mass rule takes the polygon of a vertex's neighbours and RAISES
-        # ("At least three points required") on a vertex with two -- which is what every
-        # corner of a quad mesh has. A Fixed boundary never reaches it; Sliding and Free do.
         lonely = set(vertex for vertex in mesh.vertices()
                      if vertex not in pinned and len(mesh.vertex_neighbors(vertex)) < 3)
-        # a corner already pinned by a Point constraint loses nothing by being fixed instead
         mobile = [vertex for vertex in lonely if not isinstance(constraints.get(vertex), Point)]
         if mobile:
             notes.append(
@@ -348,9 +263,7 @@ def smooth_region(mesh, core, blend=DEFAULT_BLEND, boundary="sliding", fixed=(),
                   kmax=50, damping=0.5):
     """Smooth a region of the mesh in place with the options of the command. Returns a report.
 
-    Guide chains are clipped to the CORE. A chain vertex outside it would be moved onto its
-    guide where the smoothing is too weak to blend the move in -- or, outside the blend,
-    where there is no smoothing at all -- and that is a crease.
+    Note: guide chains are clipped to the core.
     """
     boundary = boundary.lower()
     core = set(core)
@@ -364,24 +277,16 @@ def smooth_region(mesh, core, blend=DEFAULT_BLEND, boundary="sliding", fixed=(),
     pinned -= set(attached["constraints"])
     pinned |= fixed
 
-    # region_smoothing fixes a vertex whose weight is not positive, and only projects the
-    # constraints of the vertices it moves
     for vertex in pinned:
         if vertex in weights:
             weights[vertex] = 0.0
         constraints.pop(vertex, None)
 
-    # a dict, never None: None would make region_smoothing build sliding boundary
-    # constraints of its own, and a Fixed boundary would slide
     region_smoothing(mesh, weights, kmax=kmax, damping=damping, constraints=constraints)
     moving = len([vertex for vertex, weight in weights.items() if weight > 0.0])
     return _report(attached, set(vertex for vertex in pinned if vertex in weights), [],
                    core=len(core), moving=moving)
 
-
-# ==============================================================================
-# Rhino
-# ==============================================================================
 
 def quad_mesh_filter(rhobj, geometry, component_index):
     layer = rs.ObjectLayer(rhobj)
@@ -396,11 +301,9 @@ def _xyz(point):
 
 
 def _index(added):
-    """The index an ``AddOption*`` call returns.
+    """The index an ``AddOption*`` call returns; 0 if Rhino refused the option.
 
-    The overloads that take their option by ``ref`` -- Toggle, Integer, Double -- return
-    ``(index, option)`` under Rhino 8's CPython, not the index (checked in Rhino). 0 means
-    Rhino refused the option, e.g. because the name was already used on this line.
+    Note: the by-ref overloads (Toggle, Integer, Double) return ``(index, option)`` in Rhino 8 CPython.
     """
     return added[0] if isinstance(added, tuple) else added
 
@@ -432,11 +335,7 @@ def option_line(prompt, options):
 
 
 def guide_curves():
-    """Every curve on the Guides layer and its sublayers.
-
-    These are the curves CMD_boundary_selection collected and the layout was generated
-    from, so holding the mesh to them holds it to what it came from.
-    """
+    """Every curve on the Guides layer and its sublayers."""
     if not rs.IsLayer(GUIDE_LAYER):
         return []
     found, seen = [], set()
@@ -450,28 +349,17 @@ def guide_curves():
 
 def build_guide(curve_id):
     """A Rhino curve as a GuideCurve: samples to choose the chain on, the curve to land on."""
-    # max_edge only sets how finely a curved guide is sampled; a polyline guide is taken
-    # at its own vertices either way
     points = curve_points(curve_id, 0.25)
-    # curve_points DROPS the closing point -- a loop is closed by convention there. A ring
-    # handed over like that is an arc with a gap in it, and the arc-length parameter
-    # cannot wrap across the seam.
+    # curve_points drops the closing point of a closed curve.
     if rs.IsCurveClosed(curve_id) and len(points) > 2:
         points = points + points[:1]
     return GuideCurve(points, curve=guide_geometry(curve_id))
 
 
 def guide_geometry(curve_id):
-    """The guide as a compas curve on World XY, for its vertices to land ON -- or None.
+    """The guide as a compas curve flattened onto World XY, for its vertices to land ON.
 
-    None for a polyline: its samples are its own vertices, so landing on them already is
-    landing on the guide. An arc, a circle or a NURBS curve is sampled at 0.25, and a vertex
-    landing on those samples lands on a chord, up to a sagitta off what was drawn.
-
-    Flattened onto World XY because ``curve_points`` puts every sample at z = 0, and the
-    curve has to lie where the samples do: a guide drawn at another height would otherwise
-    lift the vertices attached to it off the plan. None too if Rhino cannot flatten it,
-    which leaves the samples to land on, as before.
+    None for a polyline, or if Rhino cannot flatten the curve.
     """
     curve = rs.coercecurve(curve_id)
     if curve is None or curve.TryGetPolyline()[0]:
@@ -485,13 +373,7 @@ def guide_geometry(curve_id):
 class Preview(object):
     """Coloured points on their own layer, showing what the smoothing will hold.
 
-    **Drawn with RhinoCommon, not rhinoscriptsyntax, and only when it has changed.**
-    ``rs.ObjectLayer`` and ``rs.ObjectColor`` each end in a full ``doc.Views.Redraw()``, as
-    do ``rs.AddPoints`` and ``rs.DeleteObjects``. Colouring N points one call at a time was
-    2N redraws, measured at 11 ms each in a 3 300-object document -- seconds per click, on
-    every pass round the menu, even for a click on Algorithm that changes nothing on screen.
-    Here every point is added with its attributes already set, and the viewport is redrawn
-    once.
+    Note: drawn with RhinoCommon and redrawn once, only when the picture changed.
     """
 
     def __init__(self, doc, layer=PREVIEW_LAYER):
@@ -505,7 +387,6 @@ class Preview(object):
         if index < 0:
             index = self.doc.Layers.Add(self.layer, System.Drawing.Color.Red)
         elif self.shown is None:
-            # left behind by a run that did not get to purge it
             for rhino_object in self.doc.Objects.FindByLayer(self.doc.Layers[index]) or []:
                 self.doc.Objects.Delete(rhino_object.Id, True)
         return index
@@ -548,11 +429,9 @@ class SmoothCommand(object):
         self.mesh_id = mesh_id
         self.region = region
         geometry = cr.objects.find_object(mesh_id).Geometry
-        # QuadMesh, not a plain Mesh: the guide chains are chosen from its polyedges
         self.mesh = QuadMesh.from_vertices_and_faces(
             *mesh_from_rhino(geometry).to_vertices_and_faces())
         self.rhino_vertices = rs.MeshVertices(mesh_id)
-        # nothing moves until the options are settled, so this stays true for every pick
         self.coordinates = [(vertex, self.mesh.vertex_coordinates(vertex))
                             for vertex in self.mesh.vertices()]
         self.average = mean_edge_length(self.mesh)
@@ -572,17 +451,8 @@ class SmoothCommand(object):
         self.tolerance = Rhino.Input.Custom.OptionDouble(float(DEFAULT_TOLERANCE_FACTOR), 0.05, 5.0)
         self.max_angle = Rhino.Input.Custom.OptionDouble(float(DEFAULT_MAX_ANGLE), 1.0, 90.0)
 
-    # ------------------------------------------------------------------
-    # picks
-    # ------------------------------------------------------------------
-
     def nearest_vertex(self, xyz):
-        """The compas vertex closest to a point, and how far it is.
-
-        Matched by POSITION, not by index. mesh_to_compas and the bake round-trip both go
-        through float conversions, so an index that looks like it should line up is not
-        something to bet a constraint on.
-        """
+        """The compas vertex closest to a point, and how far it is. Matched by position, not index."""
         best, best_d = None, None
         for vertex, point in self.coordinates:
             d = (point[0] - xyz[0]) ** 2 + (point[1] - xyz[1]) ** 2 + (point[2] - xyz[2]) ** 2
@@ -606,7 +476,7 @@ class SmoothCommand(object):
                 len(curve_ids) - len(closed)))
         inside = []
         for vertex, xyz in self.coordinates:
-            # 1 = inside, 2 = on the curve
+            # PointInPlanarClosedCurve: 1 = inside, 2 = on the curve.
             if any(rs.PointInPlanarClosedCurve(xyz, curve_id) in (1, 2) for curve_id in closed):
                 inside.append(vertex)
         return inside
@@ -636,7 +506,6 @@ class SmoothCommand(object):
             nonquad = [f for f in self.mesh.faces() if len(self.mesh.face_vertices(f)) != 4]
             if nonquad:
                 print("note: {} non-quad face(s) -- polyedges stop at those.".format(len(nonquad)))
-            # collected ONCE: it costs O(edges squared) and does not depend on the guide
             self._polyedges = collect_polyedges(self.mesh)
         return self._polyedges
 
@@ -646,16 +515,10 @@ class SmoothCommand(object):
             if vertex not in target:
                 target.append(vertex)
 
-    # ------------------------------------------------------------------
-    # preview
-    # ------------------------------------------------------------------
-
     def show(self, pending=()):
         """Draw what will happen: fixed blue, guide chains purple, region core red, blend orange.
 
-        One point per vertex, by priority, so the preview shows what holds each vertex.
         ``pending`` are guide entries being edited, drawn in place of their saved versions.
-        Costs nothing when the picture has not changed -- see :class:`Preview`.
         """
         colours = {}
         if self.region:
@@ -668,17 +531,11 @@ class SmoothCommand(object):
                     colours[vertex] = GUIDE_COLOUR
         for vertex in self.fixed:
             colours[vertex] = FIXED_COLOUR
-        # the mesh does not move until the options are settled, so a vertex key stands for
-        # its position here
         self.preview.draw(colours, self.mesh.vertex_coordinates)
 
     def guide_entries(self, pending=()):
         keys = set(entry["key"] for entry in pending)
         return [entry for entry in self.guides if entry["key"] not in keys] + list(pending)
-
-    # ------------------------------------------------------------------
-    # the main option line
-    # ------------------------------------------------------------------
 
     def menu(self):
         """The main option line. True to smooth, False when cancelled."""
@@ -697,7 +554,6 @@ class SmoothCommand(object):
             options.append(("fixed", lambda go: go.AddOption("FixedVertices", str(len(self.fixed)))))
             options.append(("guides", lambda go: go.AddOption("Guides", str(len(self.guides)))))
             if force_density:
-                # no iterations and no damping to set: relaxation solves to equilibrium
                 options.append(("stiffness", lambda go: go.AddOptionDouble(
                     "BoundaryStiffness", self.q_factor)))
             else:
@@ -724,11 +580,6 @@ class SmoothCommand(object):
                 self.edit_fixed()
             elif key == "guides":
                 self.edit_guides()
-            # Blend, Iterations, Damping, BoundaryStiffness: Rhino has stored the value
-
-    # ------------------------------------------------------------------
-    # region
-    # ------------------------------------------------------------------
 
     def pick_region(self):
         """The first pick of the region. True if it selected anything."""
@@ -764,10 +615,6 @@ class SmoothCommand(object):
             elif key == "clear":
                 self.core = []
 
-    # ------------------------------------------------------------------
-    # fixed vertices
-    # ------------------------------------------------------------------
-
     def edit_fixed(self):
         while True:
             self.show()
@@ -786,22 +633,13 @@ class SmoothCommand(object):
             elif key == "clear":
                 self.fixed = []
 
-    # ------------------------------------------------------------------
-    # guides
-    # ------------------------------------------------------------------
-
     def edit_guides(self):
         while True:
             self.show()
             count = len(set(vertex for entry in self.guides for vertex in entry["chain"]))
             prompt = ("Guides: {} with {} vertices (Distance is in edge lengths). Press Enter "
                       "when done").format(len(self.guides), count)
-            # Distance and Angle are the two gates the proposal is chosen by, and they do
-            # different jobs. DISTANCE is how far off the guide a vertex may sit -- and it is
-            # pulled onto the guide by exactly that far, so it sets both coverage and damage.
-            # ANGLE is whether the polyedge still runs the guide's way, which is what cuts a
-            # chain where the line veers off near its ends. 90 turns the angle gate off.
-            # They apply to the next proposal; a chain already made keeps its vertices.
+            # Distance: in mean edge lengths, off the guide. Angle: in degrees, 90 = off.
             key, _ = option_line(prompt, [
                 ("all", "AllGuides"), ("pick", "Pick"), ("remove", "Remove"), ("clear", "Clear"),
                 ("distance", lambda go: go.AddOptionDouble("Distance", self.tolerance)),
@@ -825,9 +663,6 @@ class SmoothCommand(object):
             self.max_angle.CurrentValue, self.polyedges())
         if not selected:
             return selected, info
-        # coverage says how much of the guide it got; alignment says whether the mesh has a
-        # course along this guide at all -- low alignment means it has not, and no
-        # selection will fix that
         print("  {} vertices: {:.0f}% of the guide, alignment {:.2f}, worst face angle if "
               "attached {:.0f}.".format(len(selected), 100 * quality["coverage"],
                                         quality["alignment"], quality["min_face_angle"] or 0.0))
@@ -879,9 +714,7 @@ class SmoothCommand(object):
             self.show(pending=[entry])
             prompt = "Chain: {} vertices. Press Enter to keep it, Esc to discard".format(
                 len(entry["chain"]))
-            # Fixed pins an interior vertex where it lands on the guide; Sliding re-projects
-            # it every iteration, so it may travel ALONG the guide but never leave it. There
-            # is no ordering guard on Sliding -- two vertices may pass each other.
+            # Hold: Fixed pins a vertex where it lands; Sliding lets it travel along the guide.
             key, _ = option_line(prompt, [
                 ("add", "Add"), ("remove", "Remove"), ("clear", "Clear"),
                 ("hold", lambda go: go.AddOption("Hold", entry["hold"].capitalize())),
@@ -932,7 +765,6 @@ class SmoothCommand(object):
         if not new:
             return
 
-        # everything is on screen before the one question is asked
         hold = "fixed"
         count = len(set(vertex for entry in new for vertex in entry["chain"]))
         while True:
@@ -959,10 +791,6 @@ class SmoothCommand(object):
         self.guides = [entry for entry in self.guides if entry["key"] != str(curve_id)]
         if len(self.guides) == before:
             print("That curve has no chain.")
-
-    # ------------------------------------------------------------------
-    # run
-    # ------------------------------------------------------------------
 
     def run(self):
         """Smooth, and return (report, the layer to bake to, a line saying what was done)."""
@@ -1046,7 +874,6 @@ def main():
     try:
         report, layer, summary = command.run()
     except Exception as exc:
-        # nothing is baked, so the mesh in the document is untouched
         print("Smoothing failed, nothing baked: {}: {}".format(type(exc).__name__, exc))
         return
 
