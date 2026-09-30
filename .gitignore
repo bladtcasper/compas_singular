@@ -22,6 +22,8 @@ sdist/
 var/
 wheels/
 *.egg-info/
+# Written by setuptools-scm on install.
+src/compas_singular/_version.py
 .installed.cfg
 *.egg
 

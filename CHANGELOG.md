@@ -33,7 +33,8 @@ First release of the fork. It picks up from upstream commit `66024561` (April 20
 
 * Ported to COMPAS 2 (tested with compas 2.15.1). Requires Python 3.9 or later.
 * `numpy` and `scipy` are declared dependencies; `networkx` is no longer one.
-* The version is set in one place, `compas_singular.__version__`.
+* The version comes from the git tags (setuptools-scm) and starts at 0.2.0, above upstream's last
+  release (0.1.5). Every commit after a tag has its own version, so `pip install -U` from git updates.
 * Packaging follows compas_model: dependencies, pytest, bump-my-version and ruff are configured in
   `pyproject.toml`; `tasks.py` uses `compas_invocations2`; `environment.yml` creates the `singular-dev`
   conda environment. `setup.py`, `setup.cfg`, `pytest.ini`, `.bumpversion.cfg` and the `requirements*.txt`

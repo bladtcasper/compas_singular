@@ -5,6 +5,8 @@ prune .github
 prune data
 prune docs
 prune examples
+prune rhino_plugin
+prune scripts
 prune temp
 prune tests
 
@@ -20,7 +22,8 @@ include AUTHORS.md
 include CHANGELOG.md
 include pyproject.toml
 
-exclude .editorconfig environment.yml mkdocs.yml
+# setuptools-scm adds every git-tracked file to the sdist; these are the ones not pruned above.
+exclude .editorconfig .gitignore environment.yml mkdocs.yml
 exclude tasks.py
 exclude CONTRIBUTING.md
 

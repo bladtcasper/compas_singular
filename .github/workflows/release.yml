@@ -2,6 +2,8 @@ on:
   push:
     tags:
       - "v*"
+      # v0.2.0.dev0 and the like only mark where a version's development starts; they never publish.
+      - "!v*dev*"
 
 name: Create Release
 
@@ -17,7 +19,7 @@ jobs:
     steps:
       - uses: compas-dev/compas-actions.build@v5
         with:
-          invoke_lint: false
+          invoke_lint: true
           invoke_test: true
           python: ${{ matrix.python }}
 

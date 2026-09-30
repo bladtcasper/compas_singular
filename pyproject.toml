@@ -1,6 +1,7 @@
 [build-system]
 # 77.0.3: the first setuptools that supports `license` as an SPDX expression with `license-files`.
-requires = ["setuptools>=77.0.3"]
+# setuptools-scm: the version comes from the git tags (see [tool.setuptools_scm]).
+requires = ["setuptools>=77.0.3", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 # ============================================================================
@@ -60,7 +61,7 @@ docs = [
     "markdown-callouts >=0.4",
     "markdown-exec >=1.8",
     "mike",
-    "mkdocs >=1.6",
+    "mkdocs >=1.6,<2",
     "mkdocs-autorefs >=1.4",
     "mkdocs-coverage >=1.0",
     "mkdocs-git-revision-date-localized-plugin >=1.2",
@@ -101,9 +102,12 @@ package-dir = { "" = "src" }
 include-package-data = true
 zip-safe = false
 
-# The version is set in ONE place, compas_singular.__version__.
-[tool.setuptools.dynamic]
-version = { attr = "compas_singular.__version__" }
+# The version comes from the nearest git tag: v0.2.0 builds as 0.2.0, and every commit after a tag
+# gets its own version (0.2.1.dev3+g1a2b3c4), so `pip install -U` from git picks up new commits.
+# The tag v0.2.0.dev0 marks the start of 0.2.0; without it upstream's v0.1.5 would give 0.1.6.devN.
+# Install writes _version.py (git-ignored), which compas_singular.__version__ reads.
+[tool.setuptools_scm]
+version_file = "src/compas_singular/_version.py"
 
 # Excluded from the wheel: thesis code no workflow uses (algorithms.unused) and
 # the RhinoCurve/RhinoSurface wrappers (rhino.geometry), which still extend the
@@ -139,6 +143,9 @@ doctest_optionflags = [
 # replace bumpversion.cfg
 # ============================================================================
 
+# bump-my-version (run by `invoke release`) only dates the CHANGELOG heading and makes the commit and
+# the tag; setuptools-scm turns the tag into the package version. current_version is the last release
+# number: nothing is released yet, so the first release is `invoke release minor`, which tags v0.2.0.
 [tool.bumpversion]
 current_version = "0.1.0"
 message = "Bump version to {new_version}"
@@ -146,11 +153,6 @@ commit = true
 tag = true
 # The default tag message has a "→", which a cp1252 Windows console cannot print.
 tag_message = "Bump version to {new_version}"
-
-[[tool.bumpversion.files]]
-filename = "src/compas_singular/__init__.py"
-search = "__version__ = '{current_version}'"
-replace = "__version__ = '{new_version}'"
 
 [[tool.bumpversion.files]]
 filename = "CHANGELOG.md"
