@@ -3,14 +3,14 @@
 A refusal is a ``{'ok': False, 'reason': ...}`` return value, never an exception.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from compas_singular.mcp.session import MeshSession

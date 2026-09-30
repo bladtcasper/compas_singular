@@ -283,3 +283,114 @@ def test_open_strip_count_matches_the_euler_style_relation(grid4):
     mesh.collect_strips()
     open_strips = [s for s in mesh.attributes['strips'] if not mesh.is_strip_closed(s)]
     assert len(open_strips) == mesh.number_of_edges() - 2 * mesh.number_of_faces()
+
+
+# ==============================================================================
+# strips with a pole end (thesis Fig 5.15): the pole is never copied
+# ==============================================================================
+
+from compas_singular.datastructures import CoarsePseudoQuadMesh  # noqa: E402
+from compas_singular.datastructures.mesh_quad.grammar.add_strip import (  # noqa: E402
+    pole_ends, split_strip)
+
+
+def _centre_pole(density=None):
+    """Four pseudo-quads around a pole at (5, 5); densified if ``density`` is given."""
+    vertices = [[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [10.0, 10.0, 0.0], [0.0, 10.0, 0.0], [5.0, 5.0, 0.0]]
+    faces = [[4, 0, 1], [4, 1, 2], [4, 2, 3], [4, 3, 0]]
+    mesh = CoarsePseudoQuadMesh.from_vertices_and_faces_with_poles(vertices, faces, poles=[[5.0, 5.0, 0.0]])
+    mesh.collect_strips()
+    if density is None:
+        return mesh
+    mesh.set_strips_density(density)
+    mesh.densification()
+    dense = mesh.get_quad_mesh()
+    dense.collect_strips()
+    return dense
+
+
+def _strip_face_sets(mesh):
+    return sorted(tuple(sorted(mesh.strip_faces(skey))) for skey in mesh.strips())
+
+
+def _assert_consistent(mesh):
+    face_pole = mesh.attributes['face_pole']
+    for fkey in mesh.faces():
+        vertices = mesh.face_vertices(fkey)
+        assert len(vertices) == 4 or face_pole.get(fkey) in vertices, (fkey, vertices)
+    assert mesh.is_manifold()
+    fresh = mesh.copy()
+    fresh.collect_strips()
+    assert _strip_face_sets(mesh) == _strip_face_sets(fresh), 'stored strip data went stale'
+
+
+def test_splitting_a_pole_strip_leaves_the_pole_whole():
+    mesh = _centre_pole(density=4)
+    pole = mesh.poles()[0]
+    fan = len(mesh.vertex_pole_faces(pole))
+    skey = [s for s in mesh.strips() if mesh.has_strip_poles(s)][0]
+
+    split_strip(mesh, skey, 3)
+
+    assert mesh.poles() == [pole]
+    assert len(mesh.vertex_pole_faces(pole)) == fan + 2
+    _assert_consistent(mesh)
+
+
+def test_both_sides_of_a_new_pole_strip_end_at_the_pole():
+    mesh = _centre_pole(density=4)
+    skey = [s for s in mesh.strips() if mesh.has_strip_poles(s)][0]
+    new = split_strip(mesh, skey, 2)[1]
+    left, right = mesh.strip_side_polyedges(new)
+    pole = mesh.poles()[0]
+    assert pole in (left[0], left[-1]) and pole in (right[0], right[-1])
+
+
+def _two_poles():
+    """A 20 x 10 rectangle with poles at (5, 5) and (15, 5), densified once."""
+    vertices = [[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [20.0, 0.0, 0.0], [20.0, 10.0, 0.0],
+                [10.0, 10.0, 0.0], [0.0, 10.0, 0.0], [5.0, 5.0, 0.0], [15.0, 5.0, 0.0]]
+    faces = [[6, 0, 1], [6, 4, 5], [6, 5, 0], [6, 1, 7, 4], [7, 1, 2], [7, 2, 3], [7, 3, 4]]
+    coarse = CoarsePseudoQuadMesh.from_vertices_and_faces_with_poles(
+        vertices, faces, poles=[[5.0, 5.0, 0.0], [15.0, 5.0, 0.0]])
+    coarse.collect_strips()
+    coarse.set_strips_density(3)
+    coarse.densification()
+    mesh = coarse.get_quad_mesh()
+    mesh.collect_strips()
+    return mesh
+
+
+def test_a_strip_between_two_poles():
+    from compas.topology import shortest_path
+    mesh = _two_poles()
+    p, q = mesh.poles()
+    fans = {pole: len(mesh.vertex_pole_faces(pole)) for pole in (p, q)}
+    interior = {v: [n for n in mesh.vertex_neighbors(v) if not mesh.is_vertex_on_boundary(n)]
+                for v in mesh.vertices()}
+    polyedge = shortest_path(interior, p, q)
+    assert pole_ends(mesh, polyedge) == (True, True)
+
+    pattern_add_strip(mesh, list(polyedge))
+
+    assert sorted(mesh.poles()) == sorted([p, q])
+    assert all(len(mesh.vertex_pole_faces(pole)) == fans[pole] + 1 for pole in (p, q))
+    _assert_consistent(mesh)
+
+
+def test_pole_ends_are_off_on_a_plain_quad_mesh(grid4):
+    mesh, index = grid4
+    assert pole_ends(mesh, [index[0, 1], index[1, 1], index[2, 1]]) == (False, False)
+
+
+def test_splitting_at_a_corner_keeps_both_copies_on_the_wall():
+    """The thirds rule would put both copies on the diagonal across the corner."""
+    mesh = _centre_pole()
+    skey = [s for s in mesh.strips() if mesh.has_strip_poles(s)][0]
+    split_strip(mesh, skey, 2)
+    for vkey in mesh.vertices():
+        if vkey == 4:
+            continue
+        x, y, _ = mesh.vertex_coordinates(vkey)
+        assert min(abs(x), abs(x - 10.0), abs(y), abs(y - 10.0)) < 1e-9, (vkey, x, y)
+    _assert_consistent(mesh)

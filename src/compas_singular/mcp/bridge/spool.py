@@ -3,9 +3,9 @@
 Writes are temp-then-rename, claims are renames, and nothing blocks past its deadline.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 import json
 import os
@@ -13,7 +13,6 @@ import sys
 import tempfile
 import time
 from typing import Any
-
 
 __all__ = [
     'SPOOL_ENVVAR',

@@ -232,8 +232,9 @@ def update_adjacent_face(mesh: Mesh, u: int, v: int, vertices_uv: list[int]) -> 
 if __name__ == '__main__':
     
 
-    from compas_singular.datastructures.mesh.mesh import Mesh
     from compas_viewer import Viewer
+
+    from compas_singular.datastructures.mesh.mesh import Mesh
     viewer = Viewer()
 
     vertices = [

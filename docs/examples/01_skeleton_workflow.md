@@ -5,5 +5,5 @@ The skeleton route from boundary to dense quad mesh: the medial axis of the doma
 ![The basic skeleton workflow](../assets/images/examples/01_skeleton_workflow.png)
 
 ```python
---8<-- "examples/GitHub/01_skeleton_workflow.py"
+--8<-- "examples/01_skeleton_workflow.py"
 ```

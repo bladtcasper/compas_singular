@@ -3,25 +3,24 @@
 Importing it registers the tools; ``build`` refuses to start on an empty registry.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from typing import Any
 
 from compas_singular.mcp import library
 from compas_singular.mcp import registry
-from compas_singular.mcp import tools_coarse     # noqa: F401  -- registers its tools
-from compas_singular.mcp import tools_checks     # noqa: F401  -- registers its tools
-from compas_singular.mcp import tools_dense      # noqa: F401  -- registers its tools
-from compas_singular.mcp import tools_io         # noqa: F401  -- registers its tools
-from compas_singular.mcp import tools_library    # noqa: F401  -- registers its tools
-from compas_singular.mcp import tools_mesh       # noqa: F401  -- registers its tools
-from compas_singular.mcp import tools_rhino      # noqa: F401  -- registers its tools
+from compas_singular.mcp import tools_checks  # noqa: F401  -- registers its tools
+from compas_singular.mcp import tools_coarse  # noqa: F401  -- registers its tools
+from compas_singular.mcp import tools_dense  # noqa: F401  -- registers its tools
+from compas_singular.mcp import tools_io  # noqa: F401  -- registers its tools
+from compas_singular.mcp import tools_library  # noqa: F401  -- registers its tools
+from compas_singular.mcp import tools_mesh  # noqa: F401  -- registers its tools
+from compas_singular.mcp import tools_rhino  # noqa: F401  -- registers its tools
 from compas_singular.mcp.describe import describe
 from compas_singular.mcp.protocol import Dispatcher
 from compas_singular.mcp.session import MeshSession
-
 
 __all__ = ['Handler', 'build', 'INSTRUCTIONS']
 

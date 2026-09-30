@@ -1,20 +1,18 @@
 """The input every meshing route takes: walls, holes, guides and poles."""
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from typing import Any
 from typing import Sequence
 
 from compas.data import Data
-
 from compas_singular.symmetry._geometry import area_centroid
 from compas_singular.symmetry._geometry import as_points
 from compas_singular.symmetry._geometry import bbox_diagonal
 from compas_singular.symmetry._geometry import open_loop
 from compas_singular.symmetry._geometry import point_in_polygon
-
 
 __all__ = ['Domain']
 

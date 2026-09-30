@@ -1,13 +1,13 @@
 """MCP tools that load a mesh from disk and write one back, with Rhino closed."""
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 from compas_singular.mcp.describe import describe
 from compas_singular.mcp.library import thresholds

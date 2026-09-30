@@ -355,7 +355,7 @@ def discretise_line(line: list[list[float]], spacing: float | None) -> list[list
 def discretise_boundary(
     outer: list[list[float]],
     inners: list[list[list[float]]] | None = None,
-    alpha: float | None = 0.04,
+    alpha: float | None = 0.02,
     d_min: int | None = 5,
     spacing: float | None = None,
 ) -> tuple[list[list[float]], list[list[list[float]]]]:

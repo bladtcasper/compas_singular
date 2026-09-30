@@ -3,31 +3,29 @@
 Each object owns one layer; cleared objects are deleted, never purged, so Ctrl+Z still works.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from typing import Any
 from typing import Callable
 from typing import Iterable
 from typing import Sequence
 
+import compas_rhino.layers
 import Rhino  # type: ignore
 import rhinoscriptsyntax as rs  # type: ignore
 import scriptcontext as sc  # type: ignore
 import System  # type: ignore
-from Rhino.Geometry import Point3d  # type: ignore
-
-import compas_rhino.layers
 from compas_rhino.conversions import vertices_and_faces_to_rhino
 from compas_rui.scene import RUIMeshObject
+from Rhino.Geometry import Point3d  # type: ignore
 
 from compas_singular.rhino.mesh_ui import DEFAULT_COLORS
 from compas_singular.rhino.mesh_ui import FINISH
 from compas_singular.rhino.mesh_ui import ensure_layer
 from compas_singular.rhino.mesh_ui import relock
 from compas_singular.rhino.mesh_ui import unlock
-
 
 __all__ = ['RhinoSingularMeshObject']
 

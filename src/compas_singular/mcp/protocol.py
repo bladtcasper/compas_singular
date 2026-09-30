@@ -3,16 +3,15 @@
 Newline-delimited; stdout is reserved for protocol frames and ``print`` goes to stderr.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 import json
 import sys
 import traceback
 from typing import Any
 from typing import Callable
-
 
 __all__ = [
     'PROTOCOL_VERSIONS',

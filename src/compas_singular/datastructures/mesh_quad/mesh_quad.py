@@ -59,8 +59,8 @@ class QuadMesh(Mesh):
             strips.append((skey, strip))
 
         if view:
-            from compas_viewer.viewer import Viewer
             from compas_viewer.scene import Tag
+            from compas_viewer.viewer import Viewer
 
             viewer = Viewer()
             group = viewer.scene.add_group("Strip map")
@@ -105,8 +105,8 @@ class QuadMesh(Mesh):
             polyedges.append((pkey, polyedge))
 
         if view:
-            from compas_viewer.viewer import Viewer
             from compas_viewer.scene import Tag
+            from compas_viewer.viewer import Viewer
 
             viewer = Viewer()
             group = viewer.scene.add_group("Polyedge map")

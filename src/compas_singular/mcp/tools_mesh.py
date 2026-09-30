@@ -1,18 +1,18 @@
 """MCP tools that read a mesh and improve it; the ungated passes snapshot themselves."""
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 import math
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
 from compas_singular.datastructures.mesh.smoothing import automated_boundary_constraints
 from compas_singular.datastructures.mesh.smoothing import boundary_constrained_smoothing
 from compas_singular.datastructures.mesh.smoothing import constrained_smoothing
-from compas_singular.datastructures.mesh.smoothing import relaxation
 from compas_singular.datastructures.mesh.smoothing import region_smoothing
+from compas_singular.datastructures.mesh.smoothing import relaxation
 from compas_singular.editing.guide_chain import GuideCurve
 from compas_singular.editing.guide_chain import attach_chain
 from compas_singular.editing.guide_chain import collect_polyedges

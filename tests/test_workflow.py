@@ -139,7 +139,7 @@ def test_from_boundary_resamples_for_the_triangulation():
     # caricature -- the same alpha*D the field route uses
     assert default.number_of_faces() > 50
     assert (default.inputs['target_length']
-            == pytest.approx(0.04 * bounding_box_diagonal(PLATE)))
+            == pytest.approx(0.02 * bounding_box_diagonal(PLATE)))
     # the caricature is still reachable, but only by asking for it
     caricature = SkeletonDecomposition.from_boundary(PLATE, alpha=None)
     assert caricature.number_of_faces() == 2

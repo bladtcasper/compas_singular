@@ -5,5 +5,5 @@ A dense mesh straight from `densify()` is made of patches that were each filled 
 ![Smoothing the quad mesh](../assets/images/examples/06_quad_mesh_smoothing.png)
 
 ```python
---8<-- "examples/GitHub/06_quad_mesh_smoothing.py"
+--8<-- "examples/06_quad_mesh_smoothing.py"
 ```

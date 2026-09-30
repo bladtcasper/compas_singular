@@ -11,9 +11,9 @@ Run it by hand to check the wiring::
     echo {"jsonrpc":"2.0","id":1,"method":"tools/list"} | python -m compas_singular.mcp
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 import sys
 from typing import Sequence

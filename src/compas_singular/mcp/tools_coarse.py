@@ -3,14 +3,14 @@
 The coarse layout has its own undo stack, independent of the dense mesh's.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 from compas_singular.algorithms.skeleton_decomposition import SkeletonDecomposition
 from compas_singular.datastructures.mesh_quad_coarse.patterns import PATTERNS

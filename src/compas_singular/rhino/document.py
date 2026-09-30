@@ -12,7 +12,7 @@ import zlib
 from typing import Any
 
 try:
-    import Rhino
+    import Rhino  # type: ignore
 except ImportError:
     Rhino = None
 

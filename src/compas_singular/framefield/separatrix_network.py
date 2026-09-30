@@ -25,10 +25,9 @@ __all__ = ['build_network', 'boundary_corners', 'SHARP_TURN']
 
 # The mesh-repair half of this module lives in ``compas_singular.editing.repair``;
 # re-exported so old imports keep working. Import from there in anything new.
-from compas_singular.editing.repair import densifiable            # noqa: F401,E402
-from compas_singular.editing.repair import solve_non_quad_faces   # noqa: F401,E402
+from compas_singular.editing.repair import densifiable  # noqa: F401,E402
+from compas_singular.editing.repair import solve_non_quad_faces  # noqa: F401,E402
 from compas_singular.editing.repair import topological_quad_split  # noqa: F401,E402
-
 
 #: A turn this sharp is a corner, whatever its neighbours do. An angle has no
 #: length scale, so no small feature can fall under it; ``15_baseline.py

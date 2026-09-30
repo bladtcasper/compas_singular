@@ -5,5 +5,5 @@ The frame-field route on the same domain: a cross field is solved over it, its s
 ![The basic frame-field workflow](../assets/images/examples/02_framefield_workflow.png)
 
 ```python
---8<-- "examples/GitHub/02_framefield_workflow.py"
+--8<-- "examples/02_framefield_workflow.py"
 ```

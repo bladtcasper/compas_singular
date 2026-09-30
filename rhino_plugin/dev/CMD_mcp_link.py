@@ -25,7 +25,7 @@ you are inside a command.
 ``ping``, ``pull``, ``push``, ``pull_coarse``, ``push_coarse``,
 ``push_markers`` -- and nothing about meshes. Every decision about a
 mesh is made by ``compas_singular.mcp`` in a separate process, which is tested
-without Rhino in ``examples/mcp_tests``. Nothing here decides anything.
+without Rhino in ``tests/test_mcp_*.py`` and ``rhino_plugin/tests/test_mcp_link_rhino_side.py``. Nothing here decides anything.
 
 **Why a spool of files and not a socket.** A Rhino document may only be touched
 from the main thread, so a background listener would have to hand its work

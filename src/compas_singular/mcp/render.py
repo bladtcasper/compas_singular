@@ -3,16 +3,16 @@
 Walls and guides are drawn under the mesh, so where the mesh left its input the colour shows.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 import base64
 import struct
 import zlib
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from compas.datastructures import Mesh

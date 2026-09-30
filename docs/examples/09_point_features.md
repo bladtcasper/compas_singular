@@ -5,5 +5,5 @@ A point feature is a point the quad mesh must converge to: a POLE. All the mesh 
 ![Point features](../assets/images/examples/09_point_features.png)
 
 ```python
---8<-- "examples/GitHub/09_point_features.py"
+--8<-- "examples/09_point_features.py"
 ```

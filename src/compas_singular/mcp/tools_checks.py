@@ -3,14 +3,14 @@
 Thresholds are measured skeleton-route failure cases; see ``design_notes/mcp.md``.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from math import hypot
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 from compas_singular.mcp.handle import vertex_handle
 from compas_singular.mcp.registry import tool
@@ -24,7 +24,7 @@ __all__ = []
 
 #: The background spacing's share of the bounding-box diagonal when none is
 #: given -- ``SkeletonDecomposition.from_boundary``'s own ``alpha``.
-ALPHA = 0.04
+ALPHA = 0.02
 
 
 def _points(curve: Any) -> list[list[float]]:

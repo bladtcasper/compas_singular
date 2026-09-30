@@ -3,9 +3,9 @@
 Rotations are ``R<degrees>``, mirrors ``M<axis degrees>``.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from collections import namedtuple
 from math import atan2
@@ -16,7 +16,6 @@ from math import radians
 from math import sin
 from typing import Any
 from typing import Sequence
-
 
 __all__ = ['Element', 'SymmetryGroup', 'rotation_key', 'mirror_key']
 

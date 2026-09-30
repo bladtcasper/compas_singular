@@ -3,13 +3,13 @@
 Bad examples are kept and returned too.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Sequence
-from typing import TYPE_CHECKING
 
 from compas_singular.mcp import library
 from compas_singular.mcp.registry import tool

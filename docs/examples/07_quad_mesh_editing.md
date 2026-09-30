@@ -5,5 +5,5 @@ The dense mesh can be edited with the same strip rule as the coarse mesh, one ro
 ![Editing the dense quad mesh](../assets/images/examples/07_quad_mesh_editing.png)
 
 ```python
---8<-- "examples/GitHub/07_quad_mesh_editing.py"
+--8<-- "examples/07_quad_mesh_editing.py"
 ```

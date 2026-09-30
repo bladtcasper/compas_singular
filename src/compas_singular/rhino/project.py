@@ -55,7 +55,7 @@ DEFAULT_SETTINGS = Settings().model_dump()
 
 #: The ``alpha`` of thesis eq. 4.1, the default of both decompositions'
 #: ``from_boundary`` and of ``discretise_boundary``.
-THESIS_ALPHA = 0.04
+THESIS_ALPHA = 0.02
 
 
 def get_settings() -> dict[str, Any]:

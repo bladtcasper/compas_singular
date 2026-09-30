@@ -80,7 +80,6 @@ class RhinoSession(SingularSession):
         is rebuilt from the items (see ``compas_singular.session``)."""
         if self._scene is None:
             from compas.scene import Scene
-
             from compas_singular.rhino.scene import ensure_registered
 
             ensure_registered()

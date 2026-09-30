@@ -3,9 +3,9 @@
 The background spacing is the whole domain's resolved spacing, never re-derived from the unit.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from typing import Any
@@ -71,7 +71,7 @@ class SkeletonMesher(object):
         d = self.cls.from_boundary(
             outer, inner_boundaries=holes, polyline_features=guides, point_features=poles,
             target_length=self.inputs.get('target_length'),
-            alpha=self.inputs.get('alpha', 0.04), d_min=self.inputs.get('d_min', 5))
+            alpha=self.inputs.get('alpha', 0.02), d_min=self.inputs.get('d_min', 5))
         coarse = d.coarse_mesh()
         curves, tally = d.edges_to_curves(coarse)
         coarse.set_edges_to_curves(curves)
@@ -92,7 +92,7 @@ class FieldMesher(object):
             from compas_singular.symmetry._geometry import open_loop
             outer = open_loop(self.inputs['outer_boundary'])
             inners = [open_loop(h) for h in (self.inputs.get('inner_boundaries') or [])]
-            target = 0.04 * bounding_box_diagonal(outer, *inners)
+            target = 0.02 * bounding_box_diagonal(outer, *inners)
         self.target = target
 
     def __call__(

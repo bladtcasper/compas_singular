@@ -5,5 +5,5 @@ Each patch of the coarse mesh can be filled with a different pattern: `'ortho'`,
 ![Patterns](../assets/images/examples/05_patterns.png)
 
 ```python
---8<-- "examples/GitHub/05_patterns.py"
+--8<-- "examples/05_patterns.py"
 ```

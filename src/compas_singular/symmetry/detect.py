@@ -3,9 +3,9 @@
 Matched by true distance to segments of the same kind, with chord-sag slack on curves. Nothing is enforced here.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from math import atan2
 from math import hypot
@@ -23,7 +23,6 @@ from compas_singular.symmetry.group import SymmetryGroup
 from compas_singular.symmetry.group import _mirror
 from compas_singular.symmetry.group import _rotation
 from compas_singular.symmetry.report import SymmetryReport
-
 
 __all__ = ['find_symmetry', 'Matcher']
 

@@ -421,6 +421,23 @@ class CoarseEditor(MeshEditor):
             'the line stops inside a patch. It has to reach a patch edge -- and '
             'to leave the layout all-quad, a boundary')
 
+    def _pole_ahead(self, fkey: int, entry: Any) -> int | None:
+        """The pole of pseudo-quad ``fkey`` if the cut entered it through the side opposite the pole."""
+        face_pole = self.mesh.attributes.get('face_pole') or {}
+        pole = face_pole.get(fkey)
+        if pole is None or entry[0] != 'edge' or pole in entry[1]:
+            return None
+        return pole
+
+    def _pole_under(self, point: list[float]) -> tuple[str, int] | None:
+        """``('vertex', pole)`` for a curve end drawn inside a pseudo-quad, else ``None``."""
+        face_pole = self.mesh.attributes.get('face_pole') or {}
+        for fkey, pole in face_pole.items():
+            polygon = [self.mesh.vertex_coordinates(w) for w in self.mesh.face_vertices(fkey)]
+            if is_point_in_polygon_xy(point, polygon):
+                return ('vertex', pole)
+        return None
+
     def _node_at(self, fkey: int, edge: tuple[int, int], point: list[float]) -> tuple[str, int] | tuple[str, tuple[int, int], list[float]]:
         """An exit node, collapsed onto a corner when it lands on one."""
         for vkey in self.mesh.face_vertices(fkey):
@@ -438,11 +455,11 @@ class CoarseEditor(MeshEditor):
         if len(points) < 2:
             return None, 'the drawn curve has no length'
 
-        start = self.locate(points[0])
+        start = self.locate(points[0]) or self._pole_under(points[0])
         if start is None:
             return None, ('the line does not START on the layout -- pick its '
                           'first point on a coarse edge')
-        end = self.locate(points[-1])
+        end = self.locate(points[-1]) or self._pole_under(points[-1])
         if end is None:
             return None, ('the line does not END on the layout -- pick its last '
                           'point on a coarse edge')
@@ -468,12 +485,25 @@ class CoarseEditor(MeshEditor):
             if any(item[0] == fkey for item in faces):
                 return None, ('the line crosses the same patch twice. Draw it as '
                               'two cuts')
-            if self.mesh.is_face_pseudo_quad(fkey):
-                return None, ('the line crosses a pseudo-quad (a patch with a '
-                              'collapsed corner, drawn as a triangle). Its fourth '
-                              'side is a pole, so there is nothing there to cut')
 
+            pole = self._pole_ahead(fkey, nodes[entry])
             node, index, sub, reason = self._exit_of(fkey, points, index, here, end)
+            if pole is not None and node != ('vertex', pole):
+                # Entered through the side opposite the pole: the strip ends at the
+                # pole, so the cut does too, wherever the curve leaves the patch.
+                pole_point = self.mesh.vertex_coordinates(pole)
+                nodes.append(('vertex', pole))
+                faces.append((fkey, entry, len(nodes) - 1, [list(here), list(pole_point)]))
+                entry = len(nodes) - 1
+                if (node is None
+                        or distance_point_point(self._node_point(node), points[-1]) <= self.on_tol()
+                        or distance_point_point(pole_point, points[-1]) <= self.corner_tol()
+                        or self._direction(points, index, pole_point) is None):
+                    break
+                if len(faces) > self.mesh.number_of_faces():
+                    return None, 'the line does not terminate on the layout'
+                # the curve carries on past the pole: carry on from the pole
+                continue
             if node is None:
                 return None, reason
             nodes.append(node)
@@ -520,10 +550,17 @@ class CoarseEditor(MeshEditor):
             if any(item[0] == nxt for item in plan['faces']):
                 return False, ('extending the cut runs back into a patch it has '
                                'already crossed -- draw it as two cuts')
-            if len(mesh.face_vertices(nxt)) != 4 or mesh.is_face_pseudo_quad(nxt):
+            if not mesh.is_strip_face(nxt):
                 return False, ('the cut would have to continue through a patch '
                                'that is not a quad, and there is no opposite '
                                'side there to continue to')
+            pole = self._pole_ahead(nxt, node)
+            if pole is not None:
+                # into a pseudo-quad through the side opposite its pole: end there
+                plan['nodes'].append(('vertex', pole))
+                plan['faces'].append((nxt, index, len(plan['nodes']) - 1,
+                                      [list(point), list(mesh.vertex_coordinates(pole))]))
+                return True, ''
 
             # The halfedge as THIS patch sees it, or ``face_opposite_edge``
             # answers for the patch on the other side.
@@ -634,18 +671,25 @@ class CoarseEditor(MeshEditor):
                 return False, 'a coarse edge could not be split there', {}
             vertex_of[index] = w
 
+        face_pole = work.attributes.get('face_pole')
         for fkey, i, j, _sub in plan['faces']:
             a, b = vertex_of[i], vertex_of[j]
             if a == b:
                 return False, 'the line enters and leaves a patch at one corner', {}
             try:
-                work.split_face(fkey, a, b)
+                halves = work.split_face(fkey, a, b)
             except ValueError:
                 # ``split_face`` refuses neighbouring corners, which is exactly
                 # the cut that would slice a triangle off the patch.
                 return False, ('the line cuts a corner off a patch instead of '
                                'crossing it: it enters and leaves through sides '
                                'that meet'), {}
+            pole = face_pole.pop(fkey, None) if face_pole is not None else None
+            if pole is not None:
+                # the halves still touching the pole as triangles stay pseudo-quads
+                for half in halves:
+                    if pole in work.face_vertices(half) and len(work.face_vertices(half)) == 3:
+                        face_pole[half] = pole
 
         ok, reason = self._check_quads(work)
         if not ok:
@@ -720,20 +764,15 @@ class CoarseEditor(MeshEditor):
         # describing a layout that no longer exists.
         rungs = [tuple(edge) for edge in work.strip_edges(skey)]
         closed = work.is_strip_closed(skey)
-        for fkey in work.strip_faces(skey):
-            if work.is_face_pseudo_quad(fkey):
-                return self._refuse(
-                    'that strip runs into a pole. A pseudo-quad has no opposite '
-                    'side for the split to continue to, so the strip cannot be '
-                    'divided')
-        for u, v in rungs:
-            if u == v:
-                return self._refuse(
-                    'that strip ends at a pole -- its last rung is a collapsed '
-                    'edge, and there is nothing there to split')
+        strip_faces = set(work.strip_faces(skey))
+        face_pole = work.attributes.get('face_pole')
 
         corners = []
         for u, v in rungs:
+            if u == v:
+                # a pole end is not split: the division line runs into the pole
+                corners.append(u)
+                continue
             w = work.split_edge((u, v), t, allow_boundary=True)
             if w is None or w in (u, v):
                 return self._refuse('a rung of that strip could not be split')
@@ -746,19 +785,25 @@ class CoarseEditor(MeshEditor):
         for a, b in pairs:
             fkey = None
             for candidate in work.vertex_faces(a):
-                if candidate is not None and b in work.face_vertices(candidate):
+                if candidate in strip_faces and b in work.face_vertices(candidate):
                     fkey = candidate
                     break
             if fkey is None:
                 return self._refuse(
                     'the split lost track of the patch between two rungs of that '
                     'strip')
+            pole = face_pole.pop(fkey, None) if face_pole is not None else None
             try:
-                work.split_face(fkey, a, b)
+                halves = work.split_face(fkey, a, b)
             except ValueError:
                 return self._refuse(
                     'the two new corners of a patch are neighbours, so the split '
                     'would slice a triangle off it rather than cross it')
+            if pole is not None:
+                # a split pseudo-quad leaves a pseudo-quad on each side still touching the pole
+                for half in halves:
+                    if pole in work.face_vertices(half) and len(work.face_vertices(half)) == 3:
+                        face_pole[half] = pole
 
         ok, reason = self._check_quads(work)
         if not ok:
@@ -848,23 +893,42 @@ class CoarseEditor(MeshEditor):
         }
         return self._accept(**self.last_cut)
 
-    def _cut_strip(self, plan: dict[str, Any]) -> int | None:
-        """The strip a planned cut runs along, or ``None`` if it runs along none."""
-        entry = None
-        for node in plan['nodes']:
-            if node[0] == 'edge':
-                entry = node[1]
-                break
-        if entry is None:
-            return None
+    def _cut_strip(self, plan: dict[str, Any]) -> int | list[int] | None:
+        """The strip a planned cut runs along, or ``None`` if it runs along none.
+
+        A cut through a pole runs along one strip on each side of it; that returns their list.
+        """
+        poles = set((self.mesh.attributes.get('face_pole') or {}).values())
+        runs, run = [], []
+        for item in plan['faces']:
+            run.append(item)
+            node = plan['nodes'][item[2]]
+            if node[0] == 'vertex' and node[1] in poles and item is not plan['faces'][-1]:
+                runs.append(run)
+                run = []
+        runs.append(run)
+
         work = self.mesh.copy()
         work.collect_strips()
-        skey = work.edge_strip(tuple(entry))
-        if skey is None:
-            return None
-        if set(item[0] for item in plan['faces']) != set(work.strip_faces(skey)):
-            return None
-        return skey
+        skeys = []
+        for run in runs:
+            entry = None
+            for item in run:
+                for node in (plan['nodes'][item[1]], plan['nodes'][item[2]]):
+                    if node[0] == 'edge':
+                        entry = node[1]
+                        break
+                if entry is not None:
+                    break
+            if entry is None:
+                return None
+            skey = work.edge_strip(tuple(entry))
+            if skey is None:
+                return None
+            if set(item[0] for item in run) != set(work.strip_faces(skey)):
+                return None
+            skeys.append(skey)
+        return skeys[0] if len(skeys) == 1 else skeys
 
     # ------------------------------------------------------------------
     # deleting a strip -- the base's walk, this layout's gate
@@ -939,9 +1003,9 @@ class CoarseEditor(MeshEditor):
         ----------
         polyedge : list[int]
             Corner keys, in order, each joined to the next by a coarse edge.
-            Either closed on itself, or with both ends on the layout boundary --
-            a strip has to run the full width of the layout, for the same reason
-            a cut has to reach a wall.
+            Either closed on itself, or with both ends on the layout boundary or
+            at a pole -- a strip has to run the full width of the layout, for the
+            same reason a cut has to reach a wall.
         """
         polyedge = list(polyedge)
         if len(polyedge) < 3:
@@ -958,18 +1022,14 @@ class CoarseEditor(MeshEditor):
                     'corners {} and {} are not joined by a coarse edge -- a '
                     'polyedge is a chain of edges, not a list of picks'.format(u, v))
 
-        # Thesis Fig 5.15 marks pole ends ``V*`` and notes a pole extremity need
-        # not be on the boundary, but ``grammar/add_strip.py`` has no pole branch
-        # and ``is_polyedge_valid_for_strip_addition`` demands boundary ends. So
-        # this is refused rather than allowed to produce a wrong layout.
+        # A pole END is the grammar's (thesis Fig 5.15); a pole the line passes
+        # THROUGH would be torn in two, so that is refused rather than guessed.
         poles = set(self.mesh.poles()) if hasattr(self.mesh, 'poles') else set()
-        on_pole = [vkey for vkey in polyedge if vkey in poles]
+        on_pole = [vkey for vkey in polyedge[1:-1] if vkey in poles]
         if on_pole:
             return self._refuse(
-                'the line runs into the pole at corner {}. Adding a strip with a '
-                'pole at one end is in the grammar but not in this '
-                'implementation, so it is refused rather than guessed'.format(
-                    on_pole[0]))
+                'the line runs through the pole at corner {}. A strip may end at '
+                'a pole, but not cross one'.format(on_pole[0]))
 
         if not is_polyedge_valid_for_strip_addition(self.mesh, polyedge):
             return self._refuse(

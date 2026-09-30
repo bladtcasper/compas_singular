@@ -229,8 +229,8 @@ class Mesh(Mesh):
             vertices.append((vkey, vertex))
 
         if view:
-            from compas_viewer.viewer import Viewer
             from compas_viewer.scene.tagobject import Tag
+            from compas_viewer.viewer import Viewer
 
             viewer = Viewer()
             group = viewer.scene.add_group("Vertex map")

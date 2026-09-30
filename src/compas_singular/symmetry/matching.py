@@ -3,9 +3,9 @@
 Align corners by distance from the centre, split strips for unpaired ones, then slide and snap.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from copy import deepcopy
 from math import hypot

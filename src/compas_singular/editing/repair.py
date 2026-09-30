@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from math import pi
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Sequence
 
 from compas.geometry import angle_vectors

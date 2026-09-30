@@ -4,9 +4,9 @@ Independent of how anything was built: these search positions, they never read
 the orbit labels an expansion records. That is what makes them a check.
 """
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import division
 from __future__ import print_function
-from __future__ import annotations
 
 from math import hypot
 from typing import TYPE_CHECKING
@@ -17,7 +17,6 @@ from compas_singular.symmetry._geometry import SegmentHash
 
 if TYPE_CHECKING:
     from compas.datastructures import Mesh
-
     from compas_singular.symmetry.group import SymmetryGroup
 
 
