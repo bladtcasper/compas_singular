@@ -506,7 +506,8 @@ class SkeletonDecomposition(Skeleton):
         self._mesh_poles = poles_key
         return mesh
 
-    def edges_to_curves(self, coarse: CoarseQuadMesh | CoarsePseudoQuadMesh | None = None, wall_sampling: float | None = None, snap: bool = True) -> tuple[dict[tuple[int, int], list[list[float]]], dict[str, int]]:
+    def edges_to_curves(self, coarse: CoarseQuadMesh | CoarsePseudoQuadMesh | None = None, wall_sampling: float | None = None,
+                        snap: bool = True) -> tuple[dict[tuple[int, int], list[list[float]]], dict[str, int]]:
         """The shape of every coarse edge, for ``densification``: wall piece, matching branch, or chord.
 
         Parameters

@@ -20,6 +20,10 @@ if TYPE_CHECKING:
 
 __all__ = []
 
+# BROKEN: polyedge_from_mesh_to_submesh, add_strip_to_other_mesh_via_submesh,
+# reverse_deletion_to_deletion_rules and interpolation use names that are never
+# defined and raise NameError when reached. Those lines carry a ``noqa``.
+
 
 class Mapper(object):
 
@@ -96,7 +100,7 @@ def distance_and_deletion_rules_between_2_meshes(mesh_i: QuadMesh, mesh_j: QuadM
     # check cost for checking isomorphism of graph compared to mesh
     # other possibility to compare: very fast heuristic ismorphism check on strip graph and classic one on mesh graph
 
-    nb_graph_iso_check = 0
+    nb_graph_iso_check = 0  # noqa: F841
     nb_mesh_iso_check = 0
     # nb_discard = 0
     results = []
@@ -174,16 +178,16 @@ def find_submesh_between_n_meshes(meshes: list[QuadMesh]) -> QuadMesh:
 def polyedge_from_mesh_to_submesh(polyedge: list[int], mesh: QuadMesh, submesh: QuadMesh, match_mesh_to_submesh: dict[int, int]) -> None:
     # or from supermesh to mesh
     trans_mesh = mesh.copy()
-    old_vkeys_to_new_vkeys = delete_strip(trans_mesh, skey)
-    submesh_polyedge = [match_mesh_to_submesh[old_vkeys_to_new_vkeys[vkey]] if vkey in old_vkeys_to_new_vkeys else vkey for vkey in polyedge]
+    old_vkeys_to_new_vkeys = delete_strip(trans_mesh, skey)  # noqa: F405  BROKEN: skey is undefined
+    submesh_polyedge = [match_mesh_to_submesh[old_vkeys_to_new_vkeys[vkey]] if vkey in old_vkeys_to_new_vkeys else vkey for vkey in polyedge]  # noqa: F841
 
 
 def add_strip_to_other_mesh_via_submesh(mesh: QuadMesh, skey: int, submesh: QuadMesh, supermesh: QuadMesh, match_mesh_to_submesh: dict[int, int]) -> None:
-    mesh_polyedge = mesh.strip_side_polyedges(skey)[0]
+    mesh_polyedge = mesh.strip_side_polyedges(skey)[0]  # noqa: F841
     mesh_submesh = mesh.copy()
     old_vkeys_to_new_vkeys = delete_strip(mesh_submesh, skey)
-    submesh_polyedge = [match_mesh_to_submesh[old_vkeys_to_new_vkeys[vkey]] if vkey in old_vkeys_to_new_vkeys else vkey for vkey in polyedge]
-    super_mesh_polyedge
+    submesh_polyedge = [match_mesh_to_submesh[old_vkeys_to_new_vkeys[vkey]] if vkey in old_vkeys_to_new_vkeys else vkey for vkey in polyedge]  # noqa: F841, F405  BROKEN: polyedge is undefined
+    super_mesh_polyedge  # noqa: F405  BROKEN: undefined, unfinished statement
 
 
 def reverse_deletion_to_deletion_rules(mesh: QuadMesh, submesh: QuadMesh, strips_to_delete: list[int]) -> dict[int, list[int]]:
@@ -198,7 +202,7 @@ def reverse_deletion_to_deletion_rules(mesh: QuadMesh, submesh: QuadMesh, strips
     # remap polyedge using match found in submesh
     skey_to_polyedge = {skey: [match_0[vkey] for vkey in polyedge] for skey, polyedge in skey_to_polyedge.items()}
     # avoid ismorphisms between polyedges due to flips, and offsets for closed polyedges
-    skey_to_polyedge = {skey: remove_isomorphism_in_polyedge(polyedge) for skey, polyedge in skey_to_polyedge.items()}
+    skey_to_polyedge = {skey: remove_isomorphism_in_polyedge(polyedge) for skey, polyedge in skey_to_polyedge.items()}  # noqa: F405  BROKEN: undefined function
     return skey_to_polyedge
 
 
@@ -210,7 +214,7 @@ def interpolation(meshes: list[QuadMesh]) -> int:
     submesh, distances_to_submesh, deletion_rules_to_submesh = submesh_and_distance_and_deletion_rules_between_n_meshes(meshes)
     return 0
     # 3. find corresponding polyedge per strip to add by deleting all
-    polyedges_to_add = {mesh: find_polyedges_to_add(mesh, submesh, deletion_rules_to_submesh[mesh]) for mesh in meshes}
+    polyedges_to_add = {mesh: find_polyedges_to_add(mesh, submesh, deletion_rules_to_submesh[mesh]) for mesh in meshes}  # noqa: F405  BROKEN: undefined function
     # 4. apply all combinations of strip addition
     interpolated_meshes = {}
 
@@ -251,7 +255,7 @@ if __name__ == '__main__':
     import time
 
     from compas_singular.algorithms.interpolation.isomorphism import are_meshes_isomorphic
-    from compas_singular.algorithms.interpolation.layout import *
+    from compas_singular.algorithms.interpolation.layout import *  # noqa: F403
     from compas_singular.datastructures.mesh_quad_pseudo.mesh_quad_pseudo import PseudoQuadMesh
 
     # mesh_1 = CoarseQuadMesh.from_json('/Users/Robin/Desktop/json/f.json')

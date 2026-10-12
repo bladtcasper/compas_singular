@@ -22,6 +22,6 @@ jobs:
     steps:
       - uses: compas-dev/compas-actions.build@v5
         with:
-          invoke_lint: false
+          invoke_lint: true
           invoke_test: true
           python: ${{ matrix.python }}

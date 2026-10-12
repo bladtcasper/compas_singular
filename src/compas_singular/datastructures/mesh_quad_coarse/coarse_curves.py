@@ -193,7 +193,8 @@ def _wall_arc(loops: list[BoundaryLoop], pa: list[float], pb: list[float], corne
     return None
 
 
-def snap_corners_to_walls(coarse: "CoarseQuadMesh | CoarsePseudoQuadMesh", loops: "list[list[list[float]]] | tuple[list[list[float]], ...]" = (), wall_tol: float | None = None) -> tuple[int, float]:
+def snap_corners_to_walls(coarse: "CoarseQuadMesh | CoarsePseudoQuadMesh", loops: "list[list[list[float]]] | tuple[list[list[float]], ...]" = (),
+                          wall_tol: float | None = None) -> tuple[int, float]:
     """Move the layout's boundary corners onto the nearest wall, within ``wall_tol``. ``(moved, worst)``.
 
     Mutates ``coarse``; call it before ``coarse_edges_to_curves``.

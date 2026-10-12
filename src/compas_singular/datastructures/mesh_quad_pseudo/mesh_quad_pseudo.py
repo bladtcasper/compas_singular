@@ -29,7 +29,8 @@ class PseudoQuadMesh(QuadMesh):
         return mesh
 
     @classmethod
-    def from_vertices_and_faces_with_poles(cls, vertices: "dict[int, list[float]] | list[list[float]]", faces: "dict[int, list[int]] | list[list[int]]", poles: list[list[float]] = []) -> "PseudoQuadMesh":
+    def from_vertices_and_faces_with_poles(cls, vertices: "dict[int, list[float]] | list[list[float]]", faces: "dict[int, list[int]] | list[list[int]]",
+                                           poles: list[list[float]] = []) -> "PseudoQuadMesh":
         pole_map = tuple([TOL.geometric_key(pole) for pole in poles])
         mesh = cls.from_vertices_and_faces(vertices, faces)
         for fkey in mesh.faces():
@@ -43,7 +44,8 @@ class PseudoQuadMesh(QuadMesh):
         return mesh
 
     @classmethod
-    def from_vertices_and_faces_with_face_poles(cls, vertices: "dict[int, list[float]] | list[list[float]]", faces: "dict[int, list[int]] | list[list[int]]", face_poles: dict[int, int] = {}) -> "PseudoQuadMesh":
+    def from_vertices_and_faces_with_face_poles(cls, vertices: "dict[int, list[float]] | list[list[float]]", faces: "dict[int, list[int]] | list[list[int]]",
+                                                face_poles: dict[int, int] = {}) -> "PseudoQuadMesh":
         mesh = cls.from_vertices_and_faces(vertices, faces)
         mesh.attributes['face_pole'] = face_poles
         return mesh

@@ -78,7 +78,8 @@ class CoarseQuadMesh(QuadMesh):
     # --------------------------------------------------------------------------
 
     @classmethod
-    def from_quad_mesh(cls, quad_mesh: QuadMesh, collect_strips: bool = True, collect_polyedges: bool = True, attribute_density: bool = True, strict: bool = False) -> "CoarseQuadMesh":
+    def from_quad_mesh(cls, quad_mesh: QuadMesh, collect_strips: bool = True, collect_polyedges: bool = True, attribute_density: bool = True,
+                       strict: bool = False) -> "CoarseQuadMesh":
         """Build coarse quad mesh from quad mesh with density and child-parent element data.
 
         Parameters

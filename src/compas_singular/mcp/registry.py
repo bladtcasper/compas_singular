@@ -54,7 +54,8 @@ TOOLS: dict[str, ToolSpec] = {}
 
 
 def tool(name: str, description: str, properties: dict[str, Any] | None = None, required: Sequence[str] = (), read_only: bool = False,
-         destructive: bool = False, idempotent: bool = False, open_world: bool = False, title: str | None = None) -> Callable[[Callable[..., dict[str, Any]]], Callable[..., dict[str, Any]]]:
+         destructive: bool = False, idempotent: bool = False, open_world: bool = False,
+         title: str | None = None) -> Callable[[Callable[..., dict[str, Any]]], Callable[..., dict[str, Any]]]:
     """Register a tool. ``properties`` is the JSON-schema body of its arguments."""
     def wrap(function: Callable[..., dict[str, Any]]) -> Callable[..., dict[str, Any]]:
         schema = {

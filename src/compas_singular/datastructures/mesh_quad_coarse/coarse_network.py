@@ -253,7 +253,8 @@ def _cut(points: list[list[float]], cuts: list[tuple[int, float, list[float]]], 
     return pieces
 
 
-def split_at_junctions(polylines: list[list[list[float]]], tol: float | None = None, precision: int | None = None, points: "list[list[float]] | tuple[list[float], ...]" = ()) -> tuple[list[list[list[float]]], list[int]]:
+def split_at_junctions(polylines: list[list[list[float]]], tol: float | None = None, precision: int | None = None,
+                       points: "list[list[float]] | tuple[list[float], ...]" = ()) -> tuple[list[list[list[float]]], list[int]]:
     """Split every polyline wherever another ends on it or crosses it. ``(pieces, origin)``.
 
     Turns a drawing into a network ``weld_network`` accepts; dangling ends are left for it to refuse.
